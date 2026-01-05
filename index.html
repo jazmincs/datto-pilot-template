@@ -1,374 +1,427 @@
-import React, { useState, useEffect } from 'react';
-import { Check, Square, AlertCircle, FileText, Clock, Server, HardDrive, Plus, Trash2, Printer, Users, BarChart3 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, Square, AlertCircle, FileText, Calendar, Clock, Server, HardDrive } from 'lucide-react';
 
 const DattoPilotTemplate = () => {
-  const clientId = new URLSearchParams(window.location.search).get('client') || 'default';
-  
-  const [formData, setFormData] = useState({
-    cliente: '',
-    fechaPrueba: '',
-    ingenieros: [''],
-    contactosCliente: [{ nombre: '', cargo: '', telefono: '', email: '' }],
-    ventanaPrueba: '',
-    alcanceSi: '',
-    alcanceNo: '',
-    sistemas: [{
-      nombre: '', tipo: '', sistemaOperativo: '', aplicacion: '', capacidad: '', hipervisor: ''
-    }],
-    modeloAppliance: '',
-    serialEquipo: '',
-    agenteInstalado: '',
-    politicaBackup: '',
-    escenarios: [
-      { checked: false, nombre: 'Recuperación de Archivos/Carpetas', descripcion: '' },
-      { checked: false, nombre: 'Recuperación de Volumen/Partición', descripcion: '' },
-      { checked: false, nombre: 'Virtualización Instantánea (BMR)', descripcion: '' },
-      { checked: false, nombre: 'Exportación de VM (.VHDX/.VMDK)', descripcion: '' },
-      { checked: false, nombre: 'BMR en Hardware Diferente', descripcion: '' }
-    ],
-    metricasPorSistema: [{ sistema: '', rto_obj: '', rto_res: '', rto_st: '', rpo_obj: '', rpo_res: '', rpo_st: '', int_res: '', int_st: '' }],
-    validacionCliente: '',
-    comentariosCliente: '',
-    observaciones: '',
-    encuesta: { satisfaccion: 0, facilidad: 0, tiempo: 0, confianza: 0 }
-  });
-
   const [checkedItems, setCheckedItems] = useState({});
 
-  useEffect(() => {
-    const saved = localStorage.getItem(`datto-${clientId}`);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setFormData(parsed.formData || formData);
-        setCheckedItems(parsed.checkedItems || {});
-      } catch (e) {}
-    }
-  }, [clientId]);
-
-  useEffect(() => {
-    localStorage.setItem(`datto-${clientId}`, JSON.stringify({ formData, checkedItems, lastSaved: new Date().toISOString() }));
-  }, [formData, checkedItems, clientId]);
-
   const toggleCheck = (section, item) => {
-    setCheckedItems(prev => ({ ...prev, [`${section}-${item}`]: !prev[`${section}-${item}`] }));
-  };
-
-  const updateFormData = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
-
-  const addItem = (field) => {
-    const newItem = field === 'ingenieros' ? '' : 
-      field === 'contactosCliente' ? { nombre: '', cargo: '', telefono: '', email: '' } :
-      field === 'sistemas' ? { nombre: '', tipo: '', sistemaOperativo: '', aplicacion: '', capacidad: '', hipervisor: '' } :
-      { sistema: '', rto_obj: '', rto_res: '', rto_st: '', rpo_obj: '', rpo_res: '', rpo_st: '', int_res: '', int_st: '' };
-    setFormData(prev => ({ ...prev, [field]: [...prev[field], newItem] }));
-  };
-
-  const removeItem = (field, index) => {
-    setFormData(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) }));
-  };
-
-  const updateArrayItem = (field, index, value) => {
-    setFormData(prev => ({ ...prev, [field]: prev[field].map((item, i) => i === index ? value : item) }));
-  };
-
-  const updateNestedField = (field, index, subfield, value) => {
-    setFormData(prev => ({
+    setCheckedItems(prev => ({
       ...prev,
-      [field]: prev[field].map((item, i) => i === index ? { ...item, [subfield]: value } : item)
+      [`${section}-${item}`]: !prev[`${section}-${item}`]
     }));
   };
 
   const CheckItem = ({ section, id, text }) => {
     const isChecked = checkedItems[`${section}-${id}`];
     return (
-      <div className="flex items-start gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer print:hover:bg-white" onClick={() => toggleCheck(section, id)}>
-        {isChecked ? <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" /> : <Square className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />}
+      <div 
+        className="flex items-start gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
+        onClick={() => toggleCheck(section, id)}
+      >
+        {isChecked ? 
+          <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" /> : 
+          <Square className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+        }
         <span className="text-sm text-gray-700">{text}</span>
       </div>
     );
   };
 
-  const promedioEncuesta = ((formData.encuesta.satisfaccion + formData.encuesta.facilidad + formData.encuesta.tiempo + formData.encuesta.confianza) / 4).toFixed(1);
-
   return (
     <div className="max-w-5xl mx-auto p-8 bg-white">
-      <div className="fixed top-4 right-4 flex gap-2 print:hidden bg-white p-2 rounded-lg shadow-lg z-50">
-        <button onClick={() => window.print()} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-          <Printer className="w-4 h-4" /> Imprimir/PDF
-        </button>
-        <div className="text-xs text-gray-500 px-2 py-2 bg-green-50 rounded">✓ Auto-guardado</div>
-      </div>
-
-      <div className="mb-4 p-2 bg-blue-50 rounded text-xs text-gray-600 print:hidden">
-        <strong>ID:</strong> {clientId} | <strong>Última modificación:</strong> {new Date().toLocaleString('es-PE')}
-      </div>
-
+      {/* Header */}
       <div className="border-b-4 border-blue-600 pb-4 mb-6">
         <h1 className="text-3xl font-bold text-gray-900">TEMPLATE: PRUEBA PILOTO</h1>
-        <h2 className="text-xl text-blue-600 mt-2">Solución Datto BDR</h2>
-        <p className="text-sm text-gray-500 mt-2">Documento Interno | Gestión de Proyectos</p>
+        <h2 className="text-xl text-blue-600 mt-2">Solución Datto BDR (Backup & Disaster Recovery)</h2>
+        <p className="text-sm text-gray-500 mt-2">Documento Interno | Uso: Gestión de Proyectos</p>
       </div>
 
+      {/* Información del Proyecto */}
       <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-6">
-        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><FileText className="w-5 h-5" />INFORMACIÓN DEL PROYECTO</h3>
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          INFORMACIÓN DEL PROYECTO
+        </h3>
         <div className="grid grid-cols-2 gap-4">
-          <div><label className="text-xs font-semibold text-gray-600">Cliente:</label>
-            <input type="text" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" placeholder="Nombre de la empresa" value={formData.cliente} onChange={(e) => updateFormData('cliente', e.target.value)} />
+          <div>
+            <label className="text-xs font-semibold text-gray-600">Cliente:</label>
+            <input type="text" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" placeholder="Nombre de la empresa" />
           </div>
-          <div><label className="text-xs font-semibold text-gray-600">Fecha de Prueba:</label>
-            <input type="date" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" value={formData.fechaPrueba} onChange={(e) => updateFormData('fechaPrueba', e.target.value)} />
+          <div>
+            <label className="text-xs font-semibold text-gray-600">Fecha de Prueba:</label>
+            <input type="date" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" />
           </div>
-        </div>
-
-        <div className="mt-4">
-          <label className="text-xs font-semibold text-gray-600 flex items-center gap-2"><Users className="w-4 h-4" />Ingeniero(s) Responsable(s):</label>
-          {formData.ingenieros.map((ing, idx) => (
-            <div key={idx} className="flex gap-2 mt-2">
-              <input type="text" className="flex-1 border border-gray-300 rounded px-2 py-1" placeholder="Nombre completo" value={ing} onChange={(e) => updateArrayItem('ingenieros', idx, e.target.value)} />
-              {formData.ingenieros.length > 1 && <button onClick={() => removeItem('ingenieros', idx)} className="text-red-600 hover:bg-red-50 p-2 rounded print:hidden"><Trash2 className="w-4 h-4" /></button>}
-            </div>
-          ))}
-          <button onClick={() => addItem('ingenieros')} className="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 print:hidden"><Plus className="w-4 h-4" /> Agregar ingeniero</button>
-        </div>
-
-        <div className="mt-4">
-          <label className="text-xs font-semibold text-gray-600 flex items-center gap-2"><Users className="w-4 h-4" />Contacto(s) del Cliente:</label>
-          {formData.contactosCliente.map((contacto, idx) => (
-            <div key={idx} className="border border-gray-200 rounded p-3 mt-2 bg-white">
-              <div className="grid grid-cols-2 gap-2">
-                <input type="text" className="border border-gray-300 rounded px-2 py-1" placeholder="Nombre" value={contacto.nombre} onChange={(e) => updateNestedField('contactosCliente', idx, 'nombre', e.target.value)} />
-                <input type="text" className="border border-gray-300 rounded px-2 py-1" placeholder="Cargo" value={contacto.cargo} onChange={(e) => updateNestedField('contactosCliente', idx, 'cargo', e.target.value)} />
-                <input type="tel" className="border border-gray-300 rounded px-2 py-1" placeholder="Teléfono" value={contacto.telefono} onChange={(e) => updateNestedField('contactosCliente', idx, 'telefono', e.target.value)} />
-                <input type="email" className="border border-gray-300 rounded px-2 py-1" placeholder="Email" value={contacto.email} onChange={(e) => updateNestedField('contactosCliente', idx, 'email', e.target.value)} />
-              </div>
-              {formData.contactosCliente.length > 1 && <button onClick={() => removeItem('contactosCliente', idx)} className="mt-2 text-sm text-red-600 hover:bg-red-50 px-2 py-1 rounded flex items-center gap-1 print:hidden"><Trash2 className="w-3 h-3" /> Eliminar</button>}
-            </div>
-          ))}
-          <button onClick={() => addItem('contactosCliente')} className="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 print:hidden"><Plus className="w-4 h-4" /> Agregar contacto</button>
-        </div>
-
-        <div className="mt-4"><label className="text-xs font-semibold text-gray-600">Ventana de Prueba:</label>
-          <input type="text" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" placeholder="Ej: Sábado 15:00-19:00" value={formData.ventanaPrueba} onChange={(e) => updateFormData('ventanaPrueba', e.target.value)} />
+          <div>
+            <label className="text-xs font-semibold text-gray-600">Ingeniero Responsable:</label>
+            <input type="text" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" placeholder="Nombre completo" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600">Ventana de Prueba:</label>
+            <input type="text" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" placeholder="Ej: Sábado 2PM - 6PM" />
+          </div>
         </div>
       </div>
 
+      {/* Checklist Pre-Prueba */}
       <div className="mb-6 border border-gray-300 rounded-lg p-4">
-        <h3 className="font-bold text-lg mb-3 bg-yellow-100 -m-4 p-3 rounded-t-lg">✓ CHECKLIST PRE-PRUEBA</h3>
+        <h3 className="font-bold text-lg mb-3 bg-yellow-100 -m-4 p-3 rounded-t-lg">
+          ✓ CHECKLIST PRE-PRUEBA
+        </h3>
         <div className="mt-4 space-y-1">
-          <CheckItem section="pre" id="1" text="Coordinación confirmada con el cliente" />
-          <CheckItem section="pre" id="2" text="Accesos remotos validados" />
+          <CheckItem section="pre" id="1" text="Coordinación de fecha y hora confirmada con el cliente" />
+          <CheckItem section="pre" id="2" text="Accesos remotos validados (RDP/SSH/VPN)" />
           <CheckItem section="pre" id="3" text="Credenciales de administrador recibidas" />
-          <CheckItem section="pre" id="4" text="Appliance Datto operativo" />
-          <CheckItem section="pre" id="5" text="Conectividad de red validada" />
-          <CheckItem section="pre" id="6" text="Info del sistema documentada" />
-          <CheckItem section="pre" id="7" text="Ventana autorizada" />
+          <CheckItem section="pre" id="4" text="Appliance Datto registrado y operativo" />
+          <CheckItem section="pre" id="5" text="Conectividad de red validada (LAN/VLAN)" />
+          <CheckItem section="pre" id="6" text="Información del sistema a proteger documentada" />
+          <CheckItem section="pre" id="7" text="Ventana de mantenimiento autorizada por el cliente" />
         </div>
       </div>
 
+      {/* Alcance de la Prueba */}
       <div className="mb-6">
-        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><Server className="w-5 h-5" />ALCANCE</h3>
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+          <Server className="w-5 h-5" />
+          ALCANCE DE LA PRUEBA
+        </h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="border border-green-300 bg-green-50 rounded p-3">
-            <p className="font-semibold text-green-800 mb-2">✓ SÍ INCLUYE:</p>
-            <textarea className="w-full border border-green-300 rounded px-2 py-1 text-sm h-24" value={formData.alcanceSi} onChange={(e) => updateFormData('alcanceSi', e.target.value)} />
+            <p className="font-semibold text-green-800 mb-2">✓ QUÉ SÍ SE INCLUYE:</p>
+            <textarea 
+              className="w-full border border-green-300 rounded px-2 py-1 text-sm h-24"
+              placeholder="Ej: 
+- Servidor Windows DC01
+- VM Linux Ubuntu (Web Server)
+- Carpeta compartida /datos"
+            />
           </div>
           <div className="border border-red-300 bg-red-50 rounded p-3">
-            <p className="font-semibold text-red-800 mb-2">✗ NO INCLUYE:</p>
-            <textarea className="w-full border border-red-300 rounded px-2 py-1 text-sm h-24" value={formData.alcanceNo} onChange={(e) => updateFormData('alcanceNo', e.target.value)} />
+            <p className="font-semibold text-red-800 mb-2">✗ QUÉ NO SE INCLUYE:</p>
+            <textarea 
+              className="w-full border border-red-300 rounded px-2 py-1 text-sm h-24"
+              placeholder="Ej:
+- Backup completo de toda la empresa
+- DR total con failover
+- Migración de servidores"
+            />
           </div>
         </div>
       </div>
 
+      {/* Información Técnica del Sistema */}
       <div className="mb-6">
-        <h3 className="font-bold text-lg mb-3">SISTEMAS A PROTEGER</h3>
-        {formData.sistemas.map((sistema, idx) => (
-          <div key={idx} className="mb-4 border border-gray-300 rounded-lg p-4 bg-gray-50">
-            <div className="flex justify-between items-center mb-3">
-              <h4 className="font-semibold">Sistema #{idx + 1}</h4>
-              {formData.sistemas.length > 1 && <button onClick={() => removeItem('sistemas', idx)} className="text-red-600 hover:bg-red-50 p-2 rounded print:hidden"><Trash2 className="w-4 h-4" /></button>}
-            </div>
-            <table className="w-full border-collapse border border-gray-300 text-sm bg-white">
-              <tbody>
-                <tr><td className="border border-gray-300 p-2 font-semibold w-1/3">Nombre</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.nombre} onChange={(e) => updateNestedField('sistemas', idx, 'nombre', e.target.value)} /></td></tr>
-                <tr><td className="border border-gray-300 p-2 font-semibold">Tipo</td><td className="border border-gray-300 p-2"><select className="w-full border-none outline-none" value={sistema.tipo} onChange={(e) => updateNestedField('sistemas', idx, 'tipo', e.target.value)}><option value="">Seleccionar...</option><option>Servidor Físico</option><option>VM</option><option>Nube</option></select></td></tr>
-                <tr><td className="border border-gray-300 p-2 font-semibold">SO</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.sistemaOperativo} onChange={(e) => updateNestedField('sistemas', idx, 'sistemaOperativo', e.target.value)} /></td></tr>
-                <tr><td className="border border-gray-300 p-2 font-semibold">Aplicación Crítica</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.aplicacion} onChange={(e) => updateNestedField('sistemas', idx, 'aplicacion', e.target.value)} /></td></tr>
-                <tr><td className="border border-gray-300 p-2 font-semibold">Capacidad</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.capacidad} onChange={(e) => updateNestedField('sistemas', idx, 'capacidad', e.target.value)} /></td></tr>
-                <tr><td className="border border-gray-300 p-2 font-semibold">Hipervisor</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.hipervisor} onChange={(e) => updateNestedField('sistemas', idx, 'hipervisor', e.target.value)} /></td></tr>
-              </tbody>
-            </table>
-          </div>
-        ))}
-        <button onClick={() => addItem('sistemas')} className="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 print:hidden"><Plus className="w-4 h-4" /> Agregar sistema</button>
+        <h3 className="font-bold text-lg mb-3">INFORMACIÓN TÉCNICA DEL SISTEMA A PROTEGER</h3>
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border border-gray-300 p-2 text-left">Parámetro</th>
+              <th className="border border-gray-300 p-2 text-left">Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-gray-300 p-2 font-semibold">Nombre del Servidor/VM</td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full border-none outline-none" placeholder="Ej: SRV-DC01" />
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 p-2 font-semibold">Tipo</td>
+              <td className="border border-gray-300 p-2">
+                <select className="w-full border-none outline-none">
+                  <option>Seleccionar...</option>
+                  <option>Servidor Físico</option>
+                  <option>Máquina Virtual</option>
+                  <option>Servidor en Nube</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 p-2 font-semibold">Sistema Operativo</td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full border-none outline-none" placeholder="Ej: Windows Server 2022, Ubuntu 24.04" />
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 p-2 font-semibold">Aplicación/Servicio Crítico</td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full border-none outline-none" placeholder="Ej: Active Directory, Apache, Base de datos" />
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 p-2 font-semibold">Capacidad de Almacenamiento</td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full border-none outline-none" placeholder="Ej: 500 GB" />
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 p-2 font-semibold">Hipervisor (si aplica)</td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full border-none outline-none" placeholder="Ej: Hyper-V, VMware ESXi" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
+      {/* Configuración Implementada */}
       <div className="mb-6 border border-blue-300 bg-blue-50 rounded-lg p-4">
-        <h3 className="font-bold text-lg mb-3">CONFIGURACIÓN</h3>
+        <h3 className="font-bold text-lg mb-3">CONFIGURACIÓN IMPLEMENTADA</h3>
         <div className="grid grid-cols-2 gap-4 text-sm">
-          <div><p className="font-semibold mb-1">Modelo Appliance:</p><input type="text" className="w-full border border-gray-300 rounded px-2 py-1" value={formData.modeloAppliance} onChange={(e) => updateFormData('modeloAppliance', e.target.value)} /></div>
-          <div><p className="font-semibold mb-1">Serial:</p><input type="text" className="w-full border border-gray-300 rounded px-2 py-1" value={formData.serialEquipo} onChange={(e) => updateFormData('serialEquipo', e.target.value)} /></div>
-          <div><p className="font-semibold mb-1">Agente:</p><select className="w-full border border-gray-300 rounded px-2 py-1" value={formData.agenteInstalado} onChange={(e) => updateFormData('agenteInstalado', e.target.value)}><option value="">Seleccionar...</option><option>Windows</option><option>Linux</option><option>Agentless</option><option>Mixto</option></select></div>
-          <div><p className="font-semibold mb-1">Política Backup:</p><input type="text" className="w-full border border-gray-300 rounded px-2 py-1" value={formData.politicaBackup} onChange={(e) => updateFormData('politicaBackup', e.target.value)} /></div>
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><HardDrive className="w-5 h-5" />ESCENARIOS DE RECUPERACIÓN</h3>
-        <div className="space-y-3">
-          {formData.escenarios.map((esc, idx) => (
-            <div key={idx} className="border border-gray-300 rounded p-3 bg-gray-50">
-              <div className="flex items-center gap-2 mb-2">
-                <input type="checkbox" className="w-4 h-4" checked={esc.checked} onChange={(e) => { const n = [...formData.escenarios]; n[idx].checked = e.target.checked; updateFormData('escenarios', n); }} />
-                <span className="font-semibold text-sm">{idx + 1}. {esc.nombre}</span>
-              </div>
-              <textarea className="w-full border border-gray-200 rounded px-2 py-1 text-sm bg-white" rows="2" value={esc.descripcion} onChange={(e) => { const n = [...formData.escenarios]; n[idx].descripcion = e.target.value; updateFormData('escenarios', n); }} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><Clock className="w-5 h-5" />MÉTRICAS POR SISTEMA</h3>
-        <p className="text-xs text-gray-600 mb-3">Documentar métricas específicas de cada sistema</p>
-        {formData.metricasPorSistema.map((met, idx) => (
-          <div key={idx} className="mb-4 border border-gray-300 rounded p-3 bg-gray-50">
-            <div className="flex justify-between items-center mb-2">
-              <input type="text" className="font-semibold border-b border-gray-400 bg-transparent outline-none" placeholder="Sistema..." value={met.sistema} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'sistema', e.target.value)} />
-              {formData.metricasPorSistema.length > 1 && <button onClick={() => removeItem('metricasPorSistema', idx)} className="text-red-600 p-1 print:hidden"><Trash2 className="w-4 h-4" /></button>}
-            </div>
-            <table className="w-full border-collapse border border-gray-300 text-xs bg-white">
-              <thead className="bg-gray-100"><tr><th className="border border-gray-300 p-1">Métrica</th><th className="border border-gray-300 p-1">Objetivo</th><th className="border border-gray-300 p-1">Resultado</th><th className="border border-gray-300 p-1">Estado</th></tr></thead>
-              <tbody>
-                <tr><td className="border border-gray-300 p-1 font-semibold">RTO</td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.rto_obj} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rto_obj', e.target.value)} /></td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.rto_res} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rto_res', e.target.value)} /></td><td className="border border-gray-300 p-1"><select className="w-full text-xs" value={met.rto_st} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rto_st', e.target.value)}><option value="">-</option><option>✓</option><option>✗</option></select></td></tr>
-                <tr><td className="border border-gray-300 p-1 font-semibold">RPO</td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.rpo_obj} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rpo_obj', e.target.value)} /></td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.rpo_res} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rpo_res', e.target.value)} /></td><td className="border border-gray-300 p-1"><select className="w-full text-xs" value={met.rpo_st} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rpo_st', e.target.value)}><option value="">-</option><option>✓</option><option>✗</option></select></td></tr>
-                <tr><td className="border border-gray-300 p-1 font-semibold">Integridad</td><td className="border border-gray-300 p-1 text-center text-xs">100%</td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.int_res} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'int_res', e.target.value)} /></td><td className="border border-gray-300 p-1"><select className="w-full text-xs" value={met.int_st} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'int_st', e.target.value)}><option value="">-</option><option>✓</option><option>✗</option></select></td></tr>
-              </tbody>
-            </table>
+          <div>
+            <p className="font-semibold mb-1">Modelo de Appliance Datto:</p>
+            <input type="text" className="w-full border border-gray-300 rounded px-2 py-1" placeholder="Ej: SIRIS 4" />
           </div>
-        ))}
-        <button onClick={() => addItem('metricasPorSistema')} className="mt-2 text-sm text-blue-600 flex items-center gap-1 print:hidden"><Plus className="w-4 h-4" /> Agregar sistema</button>
-      </div>
-
-      <div className="mb-6 border border-gray-300 rounded-lg p-4">
-        <h3 className="font-bold text-lg mb-3 bg-blue-100 -m-4 p-3 rounded-t-lg">✓ CHECKLIST DURANTE</h3>
-        <div className="mt-4 space-y-1">
-          <CheckItem section="dur" id="1" text="Backup inicial completado" />
-          <CheckItem section="dur" id="2" text="Puntos de recuperación verificados" />
-          <CheckItem section="dur" id="3" text="Escenarios ejecutados" />
-          <CheckItem section="dur" id="4" text="Datos validados por cliente" />
-          <CheckItem section="dur" id="5" text="Evidencias capturadas" />
-          <CheckItem section="dur" id="6" text="Tiempos documentados" />
-          <CheckItem section="dur" id="7" text="Sistema productivo no afectado" />
+          <div>
+            <p className="font-semibold mb-1">Serial del Equipo:</p>
+            <input type="text" className="w-full border border-gray-300 rounded px-2 py-1" placeholder="Ej: S4-XXXXXXXX" />
+          </div>
+          <div>
+            <p className="font-semibold mb-1">Agente Instalado:</p>
+            <select className="w-full border border-gray-300 rounded px-2 py-1">
+              <option>Seleccionar...</option>
+              <option>Windows Agent</option>
+              <option>Linux Agent</option>
+              <option>Agentless (Hypervisor)</option>
+            </select>
+          </div>
+          <div>
+            <p className="font-semibold mb-1">Política de Backup:</p>
+            <input type="text" className="w-full border border-gray-300 rounded px-2 py-1" placeholder="Ej: Cada 1 hora" />
+          </div>
         </div>
       </div>
 
+      {/* Escenarios de Recuperación */}
+      <div className="mb-6">
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+          <HardDrive className="w-5 h-5" />
+          ESCENARIOS DE RECUPERACIÓN A PROBAR
+        </h3>
+        <div className="space-y-3">
+          <div className="border border-gray-300 rounded p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <input type="checkbox" className="w-4 h-4" />
+              <span className="font-semibold">Escenario 1: Recuperación de Archivos/Carpetas (Borrado Lógico)</span>
+            </div>
+            <textarea 
+              className="w-full border border-gray-200 rounded px-2 py-1 text-sm"
+              placeholder="Descripción: Ej: Se eliminaron archivos de la carpeta /Documentos. Se restauraron desde el punto de recuperación de las 10:00 AM"
+              rows="2"
+            />
+          </div>
+          
+          <div className="border border-gray-300 rounded p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <input type="checkbox" className="w-4 h-4" />
+              <span className="font-semibold">Escenario 2: Recuperación de Volumen/Partición</span>
+            </div>
+            <textarea 
+              className="w-full border border-gray-200 rounded px-2 py-1 text-sm"
+              placeholder="Descripción: Ej: Se restauró la partición completa del disco C:\ al estado de ayer a las 6:00 PM"
+              rows="2"
+            />
+          </div>
+          
+          <div className="border border-gray-300 rounded p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <input type="checkbox" className="w-4 h-4" />
+              <span className="font-semibold">Escenario 3: Virtualización Instantánea (Bare Metal Recovery)</span>
+            </div>
+            <textarea 
+              className="w-full border border-gray-200 rounded px-2 py-1 text-sm"
+              placeholder="Descripción: Ej: Se virtualizó el servidor completo en el appliance Datto. El sistema quedó operativo en 15 minutos"
+              rows="2"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Métricas Medidas */}
+      <div className="mb-6">
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+          <Clock className="w-5 h-5" />
+          MÉTRICAS OBTENIDAS
+        </h3>
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border border-gray-300 p-2">Métrica</th>
+              <th className="border border-gray-300 p-2">Objetivo</th>
+              <th className="border border-gray-300 p-2">Resultado</th>
+              <th className="border border-gray-300 p-2">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border border-gray-300 p-2 font-semibold">RTO (Recovery Time Objective)</td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full text-center" placeholder="Ej: < 30 min" />
+              </td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full text-center" placeholder="Ej: 12 min" />
+              </td>
+              <td className="border border-gray-300 p-2 text-center">
+                <select className="border border-gray-300 rounded px-2 py-1">
+                  <option>-</option>
+                  <option>✓ Cumplido</option>
+                  <option>✗ No Cumplido</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 p-2 font-semibold">RPO (Recovery Point Objective)</td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full text-center" placeholder="Ej: < 1 hora" />
+              </td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full text-center" placeholder="Ej: 30 min" />
+              </td>
+              <td className="border border-gray-300 p-2 text-center">
+                <select className="border border-gray-300 rounded px-2 py-1">
+                  <option>-</option>
+                  <option>✓ Cumplido</option>
+                  <option>✗ No Cumplido</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-gray-300 p-2 font-semibold">Integridad de Datos</td>
+              <td className="border border-gray-300 p-2 text-center">100%</td>
+              <td className="border border-gray-300 p-2">
+                <input type="text" className="w-full text-center" placeholder="Ej: 100%" />
+              </td>
+              <td className="border border-gray-300 p-2 text-center">
+                <select className="border border-gray-300 rounded px-2 py-1">
+                  <option>-</option>
+                  <option>✓ Cumplido</option>
+                  <option>✗ No Cumplido</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Checklist Durante la Prueba */}
+      <div className="mb-6 border border-gray-300 rounded-lg p-4">
+        <h3 className="font-bold text-lg mb-3 bg-blue-100 -m-4 p-3 rounded-t-lg">
+          ✓ CHECKLIST DURANTE LA PRUEBA
+        </h3>
+        <div className="mt-4 space-y-1">
+          <CheckItem section="during" id="1" text="Backup inicial completado exitosamente" />
+          <CheckItem section="during" id="2" text="Puntos de recuperación creados y verificados" />
+          <CheckItem section="during" id="3" text="Escenario(s) de recuperación ejecutado(s)" />
+          <CheckItem section="during" id="4" text="Datos restaurados validados por el cliente" />
+          <CheckItem section="during" id="5" text="Screenshots y evidencias capturadas" />
+          <CheckItem section="during" id="6" text="Tiempos de recuperación documentados" />
+          <CheckItem section="during" id="7" text="Sistema productivo no afectado" />
+        </div>
+      </div>
+
+      {/* Validación del Cliente */}
       <div className="mb-6 border border-green-300 bg-green-50 rounded-lg p-4">
-        <h3 className="font-bold text-lg mb-3">VALIDACIÓN DEL CLIENTE</h3>
+        <h3 className="font-bold text-lg mb-3">VALIDACIÓN Y CONFORMIDAD DEL CLIENTE</h3>
         <div className="space-y-3">
-          <div><label className="text-sm font-semibold">¿Datos recuperados correctos?</label>
+          <div>
+            <label className="text-sm font-semibold">¿El cliente validó que los datos recuperados son correctos?</label>
             <div className="flex gap-4 mt-1">
-              <label className="flex items-center gap-2"><input type="radio" name="val" value="si" checked={formData.validacionCliente === 'si'} onChange={(e) => updateFormData('validacionCliente', e.target.value)} /><span className="text-sm">✓ Sí</span></label>
-              <label className="flex items-center gap-2"><input type="radio" name="val" value="no" checked={formData.validacionCliente === 'no'} onChange={(e) => updateFormData('validacionCliente', e.target.value)} /><span className="text-sm">✗ No</span></label>
+              <label className="flex items-center gap-2">
+                <input type="radio" name="validation" />
+                <span className="text-sm">✓ Sí</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="radio" name="validation" />
+                <span className="text-sm">✗ No</span>
+              </label>
             </div>
           </div>
-          <div><label className="text-sm font-semibold">Comentarios:</label>
-            <textarea className="w-full border border-gray-300 rounded px-2 py-1 mt-1" rows="3" value={formData.comentariosCliente} onChange={(e) => updateFormData('comentariosCliente', e.target.value)} />
+          <div>
+            <label className="text-sm font-semibold">Comentarios del cliente:</label>
+            <textarea 
+              className="w-full border border-gray-300 rounded px-2 py-1 mt-1"
+              rows="3"
+              placeholder="Observaciones o feedback del cliente sobre la prueba..."
+            />
           </div>
         </div>
       </div>
 
-      <div className="mb-6 border border-purple-300 bg-purple-50 rounded-lg p-4">
-        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><BarChart3 className="w-5 h-5" />ENCUESTA DE SATISFACCIÓN</h3>
-        <p className="text-xs text-gray-600 mb-3">Calificar del 1 al 5 (1=Muy Malo, 5=Excelente)</p>
-        <div className="space-y-3">
-          {[
-            { key: 'satisfaccion', label: 'Satisfacción General' },
-            { key: 'facilidad', label: 'Facilidad de Recuperación' },
-            { key: 'tiempo', label: 'Tiempo de Recuperación' },
-            { key: 'confianza', label: 'Confianza en la Solución' }
-          ].map(item => (
-            <div key={item.key} className="flex items-center justify-between">
-              <span className="text-sm font-semibold">{item.label}:</span>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map(val => (
-                  <label key={val} className="cursor-pointer">
-                    <input type="radio" name={item.key} value={val} checked={formData.encuesta[item.key] === val} onChange={() => updateFormData('encuesta', { ...formData.encuesta, [item.key]: val })} className="mr-1" />
-                    <span className="text-sm">{val}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 p-3 bg-white rounded border border-purple-200">
-          <p className="text-sm font-semibold">Promedio General: <span className="text-2xl text-purple-600">{promedioEncuesta}</span> / 5.0</p>
-        </div>
-      </div>
-
+      {/* Observaciones y Oportunidades */}
       <div className="mb-6">
-        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><AlertCircle className="w-5 h-5" />OPORTUNIDADES</h3>
-        <textarea className="w-full border border-gray-300 rounded px-3 py-2" rows="4" placeholder="Oportunidades comerciales identificadas..." value={formData.observaciones} onChange={(e) => updateFormData('observaciones', e.target.value)} />
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+          <AlertCircle className="w-5 h-5" />
+          OBSERVACIONES Y OPORTUNIDADES IDENTIFICADAS
+        </h3>
+        <textarea 
+          className="w-full border border-gray-300 rounded px-3 py-2"
+          rows="4"
+          placeholder="Ejemplo:
+- El cliente no cuenta con respaldo de su base de datos SQL (oportunidad de expansión)
+- Se identificó que hay 3 servidores adicionales sin protección
+- El cliente mencionó interés en replicación a la nube
+- Requiere capacitación en uso del portal Datto"
+        />
       </div>
 
+      {/* Checklist Post-Prueba */}
       <div className="mb-6 border border-gray-300 rounded-lg p-4">
-        <h3 className="font-bold text-lg mb-3 bg-green-100 -m-4 p-3 rounded-t-lg">✓ CHECKLIST POST-PRUEBA</h3>
+        <h3 className="font-bold text-lg mb-3 bg-green-100 -m-4 p-3 rounded-t-lg">
+          ✓ CHECKLIST POST-PRUEBA
+        </h3>
         <div className="mt-4 space-y-1">
-          <CheckItem section="post" id="1" text="Sistema productivo restaurado a estado original" />
-          <CheckItem section="post" id="2" text="Anexo técnico completado" />
-          <CheckItem section="post" id="3" text="Métricas documentadas" />
+          <CheckItem section="post" id="1" text="Sistema productivo restaurado a su estado original" />
+          <CheckItem section="post" id="2" text="Anexo técnico con evidencias completado" />
+          <CheckItem section="post" id="3" text="Métricas documentadas y validadas" />
           <CheckItem section="post" id="4" text="Conformidad del cliente obtenida" />
-          <CheckItem section="post" id="5" text="Reporte ejecutivo preparado" />
-          <CheckItem section="post" id="6" text="Oportunidades reportadas" />
+          <CheckItem section="post" id="5" text="Reporte ejecutivo preparado para envío" />
+          <CheckItem section="post" id="6" text="Oportunidades comerciales identificadas y reportadas" />
         </div>
       </div>
 
+      {/* Anexos */}
       <div className="mb-6 bg-gray-50 border border-gray-300 rounded p-4">
         <h3 className="font-bold text-lg mb-2">ANEXOS TÉCNICOS</h3>
-        <p className="text-sm text-gray-600 mb-2">Documentos de soporte:</p>
+        <p className="text-sm text-gray-600 mb-2">Documentos de soporte detallado (referencia):</p>
         <div className="space-y-1 text-sm">
           <div className="flex items-center gap-2">
             <input type="checkbox" className="w-4 h-4" />
-            <span>Anexo A: Capturas instalación</span>
+            <span>Anexo A: Capturas de pantalla del proceso de instalación</span>
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" className="w-4 h-4" />
-            <span>Anexo B: Evidencias recuperación</span>
+            <span>Anexo B: Evidencias de las pruebas de recuperación</span>
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" className="w-4 h-4" />
-            <span>Anexo C: Logs técnicos</span>
+            <span>Anexo C: Logs y reportes técnicos del appliance Datto</span>
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" className="w-4 h-4" />
-            <span>Anexo D: Diagrama infraestructura</span>
+            <span>Anexo D: Diagrama de infraestructura (si aplica)</span>
           </div>
         </div>
       </div>
 
+      {/* Footer */}
       <div className="border-t-2 border-gray-300 pt-4 mt-8">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="font-semibold">Elaborado por:</p>
             <input type="text" className="w-full border-b border-gray-300 mt-2" />
-            <p className="text-xs text-gray-500 mt-1">Nombre y firma</p>
+            <p className="text-xs text-gray-500 mt-1">Nombre y firma del ingeniero</p>
           </div>
           <div>
-            <p className="font-semibold">Fecha:</p>
+            <p className="font-semibold">Fecha de elaboración:</p>
             <input type="date" className="w-full border-b border-gray-300 mt-2" />
           </div>
         </div>
       </div>
 
-      <div className="mt-6 p-3 bg-yellow-50 border-l-4 border-yellow-500 text-sm print:hidden">
-        <p className="font-semibold">📌 Notas:</p>
-        <ul className="text-gray-700 mt-1 space-y-1 ml-4 list-disc">
-          <li>Documento de uso interno</li>
-          <li>Los datos se guardan automáticamente en tu navegador</li>
-          <li>Para crear un nuevo cliente: <code className="bg-gray-200 px-1 rounded">?client=nombre-empresa</code></li>
-          <li>Para imprimir/PDF: Usa el botón superior o Ctrl+P</li>
-          <li>El PDF se puede subir a Odoo para archivo</li>
-        </ul>
+      {/* Nota final */}
+      <div className="mt-6 p-3 bg-yellow-50 border-l-4 border-yellow-500 text-sm">
+        <p className="font-semibold">📌 Nota Importante:</p>
+        <p className="text-gray-700 mt-1">Este documento es de uso interno. Para generar el reporte ejecutivo del cliente, utilizar los datos de este template junto con el Anexo Técnico correspondiente.</p>
       </div>
     </div>
   );
