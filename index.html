@@ -1,323 +1,377 @@
-<!DOCTYPE html>  
-<html lang="es">  
-<head>  
-  <meta charset="utf-8" />  
-  <meta name="viewport" content="width=device-width, initial-scale=1" />  
-  <title>Datto Pilot Template - Demo Tecnológico</title>  
+import React, { useState, useEffect } from 'react';
+import { Check, Square, AlertCircle, FileText, Clock, Server, HardDrive, Plus, Trash2, Printer, Users, BarChart3 } from 'lucide-react';
 
-  <!-- Fuente tecnológica -->  
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">  
+const DattoPilotTemplate = () => {
+  const clientId = new URLSearchParams(window.location.search).get('client') || 'default';
+  
+  const [formData, setFormData] = useState({
+    cliente: '',
+    fechaPrueba: '',
+    ingenieros: [''],
+    contactosCliente: [{ nombre: '', cargo: '', telefono: '', email: '' }],
+    ventanaPrueba: '',
+    alcanceSi: '',
+    alcanceNo: '',
+    sistemas: [{
+      nombre: '', tipo: '', sistemaOperativo: '', aplicacion: '', capacidad: '', hipervisor: ''
+    }],
+    modeloAppliance: '',
+    serialEquipo: '',
+    agenteInstalado: '',
+    politicaBackup: '',
+    escenarios: [
+      { checked: false, nombre: 'Recuperación de Archivos/Carpetas', descripcion: '' },
+      { checked: false, nombre: 'Recuperación de Volumen/Partición', descripcion: '' },
+      { checked: false, nombre: 'Virtualización Instantánea (BMR)', descripcion: '' },
+      { checked: false, nombre: 'Exportación de VM (.VHDX/.VMDK)', descripcion: '' },
+      { checked: false, nombre: 'BMR en Hardware Diferente', descripcion: '' }
+    ],
+    metricasPorSistema: [{ sistema: '', rto_obj: '', rto_res: '', rto_st: '', rpo_obj: '', rpo_res: '', rpo_st: '', int_res: '', int_st: '' }],
+    validacionCliente: '',
+    comentariosCliente: '',
+    observaciones: '',
+    encuesta: { satisfaccion: 0, facilidad: 0, tiempo: 0, confianza: 0 }
+  });
 
-  <!-- CSS embebido para todo en un solo archivo -->  
-  <style>  
-    :root{  
-      --bg: #0b1020;  
-      --surface: #141a2b;  
-      --surface-2: #1e2540;  
-      --text: #e6eaf8;  
-      --muted: #a6b3d3;  
-      --primary: #4aa3ff;  
-      --accent: #8a5cff;  
-      --radius: 12px;  
-    }  
-    * { box-sizing: border-box; }  
-    html, body { margin: 0; padding: 0; font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial; background: var(--bg); color: var(--text); }  
+  const [checkedItems, setCheckedItems] = useState({});
 
-    a { color: var(--primary); text-decoration: none; }  
-    a:hover { text-decoration: underline; }  
+  useEffect(() => {
+    const saved = localStorage.getItem(`datto-${clientId}`);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setFormData(parsed.formData || formData);
+        setCheckedItems(parsed.checkedItems || {});
+      } catch (e) {}
+    }
+  }, [clientId]);
 
-    /* Header */  
-    .site-header {  
-      display: flex; justify-content: space-between; align-items: center;  
-      padding: 18px 28px; border-bottom: 1px solid rgba(255,255,255,.08);  
-      background: linear-gradient(135deg, rgba(20,26,48,.95), rgba(10,14,32,.95));  
-      position: sticky; top: 0; z-index: 100;  
-    }  
-    .brand { display: flex; align-items: center; gap: 12px; }  
-    .brand .logo {  
-      width: 38px; height: 38px; border-radius: 9px;  
-      display: inline-flex; align-items: center; justify-content: center;  
-      background: linear-gradient(135deg, var(--primary), var(--accent));  
-      color: white; font-weight: 700;  
-    }  
-    .brand h1 { font-size: 1.15rem; margin: 0; font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo; font-weight: 600; }  
+  useEffect(() => {
+    localStorage.setItem(`datto-${clientId}`, JSON.stringify({ formData, checkedItems, lastSaved: new Date().toISOString() }));
+  }, [formData, checkedItems, clientId]);
 
-    .nav ul { list-style: none; display: flex; gap: 12px; margin: 0; padding: 0; }  
-    .nav a { color: var(--text); opacity: .9; padding: 8px 12px; border-radius: 8px; }  
-    .nav a:hover { background: rgba(255,255,255,.08); }  
+  const toggleCheck = (section, item) => {
+    setCheckedItems(prev => ({ ...prev, [`${section}-${item}`]: !prev[`${section}-${item}`] }));
+  };
 
-    /* Contenido */  
-    main { padding: 20px 28px; display: grid; gap: 20px; grid-template-columns: 1fr; }  
+  const updateFormData = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
 
-    .card {  
-      background: linear-gradient(145deg, rgba(20,26,48,.75), rgba(20,26,48,.5));  
-      border: 1px solid rgba(255,255,255,.08);  
-      border-radius: var(--radius);  
-      padding: 20px;  
-      box-shadow: 0 20px 40px rgba(0,0,0,.25);  
-    }  
-    .card h2 { font-family: "Inter", sans-serif; font-weight: 700; margin-top: 0; color: #eaf2ff; }  
+  const addItem = (field) => {
+    const newItem = field === 'ingenieros' ? '' : 
+      field === 'contactosCliente' ? { nombre: '', cargo: '', telefono: '', email: '' } :
+      field === 'sistemas' ? { nombre: '', tipo: '', sistemaOperativo: '', aplicacion: '', capacidad: '', hipervisor: '' } :
+      { sistema: '', rto_obj: '', rto_res: '', rto_st: '', rpo_obj: '', rpo_res: '', rpo_st: '', int_res: '', int_st: '' };
+    setFormData(prev => ({ ...prev, [field]: [...prev[field], newItem] }));
+  };
 
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }  
-    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }  
-    label { font-size: 12px; color: #d6e0ff; }  
-    input[type="text"], input[type="date"], input[type="tel"], input[type="email"], textarea, select {  
-      width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #334155; background: #0f162a; color: #eaf2ff;  
-    }  
-    textarea { resize: vertical; min-height: 60px; }  
+  const removeItem = (field, index) => {
+    setFormData(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) }));
+  };
 
-    .section {  
-      margin-top: 12px;  
-      padding: 12px;  
-      border: 1px solid rgba(255,255,255,.08);  
-      border-radius: 8px;  
-      background: rgba(255,255,255,.02);  
-    }  
+  const updateArrayItem = (field, index, value) => {
+    setFormData(prev => ({ ...prev, [field]: prev[field].map((item, i) => i === index ? value : item) }));
+  };
 
-    .list { display: grid; gap: 8px; }  
-    .item { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,.04); }  
+  const updateNestedField = (field, index, subfield, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].map((item, i) => i === index ? { ...item, [subfield]: value } : item)
+    }));
+  };
 
-    .btn {  
-      display: inline-flex; align-items: center; gap: 6px;  
-      padding: 8px 12px; border-radius: 6px; border: 1px solid #4b6cb3;  
-      background: #2a4ea6; color: white; cursor: pointer;  
-    }  
-    .btn.secondary { background: transparent; border-color: #4b6cb3; color: #cbd5e1; }  
-    .btn.ghost { background: transparent; border: none; color: #93c5fd; cursor: pointer; }  
-    .btn.small { padding: 6px 10px; font-size: 12px; }  
+  const CheckItem = ({ section, id, text }) => {
+    const isChecked = checkedItems[`${section}-${id}`];
+    return (
+      <div className="flex items-start gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer print:hover:bg-white" onClick={() => toggleCheck(section, id)}>
+        {isChecked ? <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" /> : <Square className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />}
+        <span className="text-sm text-gray-700">{text}</span>
+      </div>
+    );
+  };
 
-    .section-title { font-size: 1.05rem; font-weight: 700; color: #e6f0ff; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }  
+  const promedioEncuesta = ((formData.encuesta.satisfaccion + formData.encuesta.facilidad + formData.encuesta.tiempo + formData.encuesta.confianza) / 4).toFixed(1);
 
-    .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #1e3a8a; color: white; font-size: 12px; }  
+  return (
+    <div className="max-w-5xl mx-auto p-8 bg-white">
+      <div className="fixed top-4 right-4 flex gap-2 print:hidden bg-white p-2 rounded-lg shadow-lg z-50">
+        <button onClick={() => window.print()} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          <Printer className="w-4 h-4" /> Imprimir/PDF
+        </button>
+        <div className="text-xs text-gray-500 px-2 py-2 bg-green-50 rounded">✓ Auto-guardado</div>
+      </div>
 
-    /* Footer */  
-    .site-footer { text-align: center; padding: 20px; color: var(--muted); border-top: 1px solid rgba(255,255,255,.08); margin-top: 20px; background: #0e1430; }  
+      <div className="mb-4 p-2 bg-blue-50 rounded text-xs text-gray-600 print:hidden">
+        <strong>ID:</strong> {clientId} | <strong>Última modificación:</strong> {new Date().toLocaleString('es-PE')}
+      </div>
 
-    /* Responsividad */  
-    @media (min-width: 900px) {  
-      main { grid-template-columns: 1fr 1fr; }  
-    }  
-  </style>  
-</head>  
-<body>  
-  <!-- Encabezado -->  
-  <header class="site-header" aria-label="Encabezado de sitio">  
-    <div class="brand">  
-      <span class="logo" aria-label="Logo">DT</span>  
-      <h1>Datto Pilot Template - Demo</h1>  
-    </div>  
-    <nav class="nav" aria-label="Navegación principal">  
-      <ul>  
-        <li><a href="#informacion">Informacion</a></li>  
-        <li><a href="#detalle">Detalle</a></li>  
-        <li><a href="#contacto">Contacto</a></li>  
-      </ul>  
-    </nav>  
-  </header>  
+      <div className="border-b-4 border-blue-600 pb-4 mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">TEMPLATE: PRUEBA PILOTO</h1>
+        <h2 className="text-xl text-blue-600 mt-2">Solución Datto BDR</h2>
+        <p className="text-sm text-gray-500 mt-2">Documento Interno | Gestión de Proyectos</p>
+      </div>
 
-  <main>  
-    <!-- Sección INFORMACIÓN DEL PROYECTO (mantiene campos originales) -->  
-    <section id="informacion" class="card" aria-labelledby="titulo-info">  
-      <h2 id="titulo-info" class="section-title">INFORMACIÓN DEL PROYECTO</h2>  
+      <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-6">
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><FileText className="w-5 h-5" />INFORMACIÓN DEL PROYECTO</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="text-xs font-semibold text-gray-600">Cliente:</label>
+            <input type="text" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" placeholder="Nombre de la empresa" value={formData.cliente} onChange={(e) => updateFormData('cliente', e.target.value)} />
+          </div>
+          <div><label className="text-xs font-semibold text-gray-600">Fecha de Prueba:</label>
+            <input type="date" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" value={formData.fechaPrueba} onChange={(e) => updateFormData('fechaPrueba', e.target.value)} />
+          </div>
+        </div>
 
-      <div class="row">  
-        <div class="field">  
-          <label>Cliente</label>  
-          <input id="cliente" type="text" placeholder="Nombre de la empresa" />  
-        </div>  
-        <div class="field">  
-          <label>Fecha de Prueba</label>  
-          <input id="fechaPrueba" type="date" />  
-        </div>  
-      </div>  
-
-      <div class="section" id="ingenieros-wrap">  
-        <div class="section-title">Ingeniero(s) Responsable(s)</div>  
-        <div id="ingenieros-list" class="list"></div>  
-        <button class="btn small" id="add-ingeniero">+ Agregar ingeniero</button>  
-      </div>  
-
-      <div class="section" id="contactos-wrap">  
-        <div class="section-title">Contacto(s) del Cliente</div>  
-        <div id="contactos-list" class="list"></div>  
-        <button class="btn small" id="add-contacto">+ Agregar contacto</button>  
-      </div>  
-
-      <div class="section">  
-        <label>Ventana de Prueba</label>  
-        <input id="ventanaPrueba" type="text" placeholder="Ej: Sábado 15:00-19:00" />  
-      </div>  
-    </section>  
-
-    <!-- Sección DETALLES / VALIDACIONES -->  
-    <section id="detalle" class="card" aria-labelledby="titulo-detalle">  
-      <h2 id="titulo-detalle" class="section-title">DETEALLES Y VALIDACIONES</h2>  
-
-      <div class="section" id="alcance-wrap">  
-        <div class="row">  
-          <div class="field">  
-            <label>Alcance - Incluye</label>  
-            <textarea id="alcanceSi" placeholder="Texto de alcance sí incluye..."></textarea>  
-          </div>  
-          <div class="field">  
-            <label>Alcance - No Incluye</label>  
-            <textarea id="alcanceNo" placeholder="Texto de alcance no incluye..."></textarea>  
-          </div>  
-        </div>  
-      </div>  
-
-      <div class="section" id="sistemas-wrap">  
-        <div class="section-title">SISTEMAS A PROTEGER</div>  
-        <div id="sistemas-list" class="list"></div>  
-        <button class="btn small" id="add-sistema">+ Agregar sistema</button>  
-      </div>  
-
-      <div class="section" id="config-wrap">  
-        <div class="row">  
-          <div class="field">  
-            <label>Modelo Appliance</label>  
-            <input id="modeloAppliance" type="text" placeholder="Modelo appliance" />  
-          </div>  
-          <div class="field">  
-            <label>Serial</label>  
-            <input id="serialEquipo" type="text" placeholder="Número de serie" />  
-          </div>  
-        </div>  
-        <div class="row">  
-          <div class="field">  
-            <label>Agente Instalado</label>  
-            <select id="agenteInstalado">  
-              <option value="">Seleccionar...</option>  
-              <option>Windows</option>  
-              <option>Linux</option>  
-              <option>Agentless</option>  
-              <option>Mixto</option>  
-            </select>  
-          </div>  
-          <div class="field">  
-            <label>Política Backup</label>  
-            <input id="politicaBackup" type="text" placeholder="Política de backup" />  
-          </div>  
-        </div>  
-      </div>  
-
-      <div class="section" id="escenarios-wrap">  
-        <div class="section-title">ESCENARIOS DE RECUPERACIÓN</div>  
-        <div id="escenarios-list" class="list"></div>  
-      </div>  
-
-      <div class="section" id="metrics-wrap">  
-        <div class="section-title">MÉTRICAS POR SISTEMA</div>  
-        <div id="metrics-list" class="list"></div>  
-        <button class="btn small" id="add-metrica">+ Agregar sistema</button>  
-      </div>  
-
-      <div class="section" id="checklist-wrap">  
-        <div class="section-title">CHECKLIST PRE-PRUEBA</div>  
-        <div id="checklist-pre" class="list"></div>  
-      </div>  
-
-      <div class="section" id="cliente-checks-wrap">  
-        <div class="section-title">VALIDACIÓN DEL CLIENTE</div>  
-        <div class="row">  
-          <div class="field">  
-            <label>Datos recuperados correctos?</label>  
-            <div>  
-              <label><input type="radio" name="val" value="si" /> Sí</label>  
-              <label style="margin-left:12px;"><input type="radio" name="val" value="no" /> No</label>  
-            </div>  
-          </div>  
-          <div class="field">  
-            <label>Comentarios</label>  
-            <textarea id="comentariosCliente"></textarea>  
-          </div>  
-        </div>  
-      </div>  
-
-      <div class="section" id="survey-wrap">  
-        <div class="section-title">ENCUESTA DE SATISFACCIÓN</div>  
-        <div id="encuesta" class="list"></div>  
-        <div id="promedio" style="margin-top:8px; font-weight:700;">Promedio General: 0 / 5</div>  
-      </div>  
-
-      <div class="section" id="observaciones-wrap">  
-        <div class="section-title">OPORTUNIDADES</div>  
-        <textarea id="observaciones" placeholder="Oportunidades comerciales identificadas..."></textarea>  
-      </div>  
-
-      <div class="section" id="anexos-wrap">  
-        <div class="section-title">ANEXOS TÉCNICOS</div>  
-        <div class="row">  
-          <label class="field" style="flex:1;">  
-            <span>Documentos de soporte (checklist)</span>  
-            <div class="list" id="anexos-list">  
-              <div class="item"><input type="checkbox" /> Anexo A: Capturas instalación</div>  
-              <div class="item"><input type="checkbox" /> Anexo B: Evidencias recuperación</div> 
-              <div class="item"><input type="checkbox" /> Anexo C: Logs de sistema</div>
-              <div class="item"><input type="checkbox" /> Anexo D: Diagramas de red</div>
+        <div className="mt-4">
+          <label className="text-xs font-semibold text-gray-600 flex items-center gap-2"><Users className="w-4 h-4" />Ingeniero(s) Responsable(s):</label>
+          {formData.ingenieros.map((ing, idx) => (
+            <div key={idx} className="flex gap-2 mt-2">
+              <input type="text" className="flex-1 border border-gray-300 rounded px-2 py-1" placeholder="Nombre completo" value={ing} onChange={(e) => updateArrayItem('ingenieros', idx, e.target.value)} />
+              {formData.ingenieros.length > 1 && <button onClick={() => removeItem('ingenieros', idx)} className="text-red-600 hover:bg-red-50 p-2 rounded print:hidden"><Trash2 className="w-4 h-4" /></button>}
             </div>
-          </label>
+          ))}
+          <button onClick={() => addItem('ingenieros')} className="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 print:hidden"><Plus className="w-4 h-4" /> Agregar ingeniero</button>
+        </div>
+
+        <div className="mt-4">
+          <label className="text-xs font-semibold text-gray-600 flex items-center gap-2"><Users className="w-4 h-4" />Contacto(s) del Cliente:</label>
+          {formData.contactosCliente.map((contacto, idx) => (
+            <div key={idx} className="border border-gray-200 rounded p-3 mt-2 bg-white">
+              <div className="grid grid-cols-2 gap-2">
+                <input type="text" className="border border-gray-300 rounded px-2 py-1" placeholder="Nombre" value={contacto.nombre} onChange={(e) => updateNestedField('contactosCliente', idx, 'nombre', e.target.value)} />
+                <input type="text" className="border border-gray-300 rounded px-2 py-1" placeholder="Cargo" value={contacto.cargo} onChange={(e) => updateNestedField('contactosCliente', idx, 'cargo', e.target.value)} />
+                <input type="tel" className="border border-gray-300 rounded px-2 py-1" placeholder="Teléfono" value={contacto.telefono} onChange={(e) => updateNestedField('contactosCliente', idx, 'telefono', e.target.value)} />
+                <input type="email" className="border border-gray-300 rounded px-2 py-1" placeholder="Email" value={contacto.email} onChange={(e) => updateNestedField('contactosCliente', idx, 'email', e.target.value)} />
+              </div>
+              {formData.contactosCliente.length > 1 && <button onClick={() => removeItem('contactosCliente', idx)} className="mt-2 text-sm text-red-600 hover:bg-red-50 px-2 py-1 rounded flex items-center gap-1 print:hidden"><Trash2 className="w-3 h-3" /> Eliminar</button>}
+            </div>
+          ))}
+          <button onClick={() => addItem('contactosCliente')} className="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 print:hidden"><Plus className="w-4 h-4" /> Agregar contacto</button>
+        </div>
+
+        <div className="mt-4"><label className="text-xs font-semibold text-gray-600">Ventana de Prueba:</label>
+          <input type="text" className="w-full border border-gray-300 rounded px-2 py-1 mt-1" placeholder="Ej: Sábado 15:00-19:00" value={formData.ventanaPrueba} onChange={(e) => updateFormData('ventanaPrueba', e.target.value)} />
         </div>
       </div>
 
-      <!-- Agregamos un par de botones de acción para guardar/validar en el mismo archivo -->
-      <div class="section" style="display:flex; gap:8px; align-items:center; justify-content:flex-start;">
-        <button class="btn" id="btnGuardar">Guardar Todo</button>
-        <button class="btn secondary" id="btnLimpiar">Limpiar Campos</button>
-        <span class="chip" title="Estado">Sincronizado local</span>
+      <div className="mb-6 border border-gray-300 rounded-lg p-4">
+        <h3 className="font-bold text-lg mb-3 bg-yellow-100 -m-4 p-3 rounded-t-lg">✓ CHECKLIST PRE-PRUEBA</h3>
+        <div className="mt-4 space-y-1">
+          <CheckItem section="pre" id="1" text="Coordinación confirmada con el cliente" />
+          <CheckItem section="pre" id="2" text="Accesos remotos validados" />
+          <CheckItem section="pre" id="3" text="Credenciales de administrador recibidas" />
+          <CheckItem section="pre" id="4" text="Appliance Datto operativo" />
+          <CheckItem section="pre" id="5" text="Conectividad de red validada" />
+          <CheckItem section="pre" id="6" text="Info del sistema documentada" />
+          <CheckItem section="pre" id="7" text="Ventana autorizada" />
+        </div>
       </div>
-    </section>
 
-  </main>
+      <div className="mb-6">
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><Server className="w-5 h-5" />ALCANCE</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="border border-green-300 bg-green-50 rounded p-3">
+            <p className="font-semibold text-green-800 mb-2">✓ SÍ INCLUYE:</p>
+            <textarea className="w-full border border-green-300 rounded px-2 py-1 text-sm h-24" value={formData.alcanceSi} onChange={(e) => updateFormData('alcanceSi', e.target.value)} />
+          </div>
+          <div className="border border-red-300 bg-red-50 rounded p-3">
+            <p className="font-semibold text-red-800 mb-2">✗ NO INCLUYE:</p>
+            <textarea className="w-full border border-red-300 rounded px-2 py-1 text-sm h-24" value={formData.alcanceNo} onChange={(e) => updateFormData('alcanceNo', e.target.value)} />
+          </div>
+        </div>
+      </div>
 
-  <footer class="site-footer" id="contacto" aria-label="Contacto">
-    <p>© 2026 Tu Nombre. Todos los derechos reservados.</p>
-  </footer>
+      <div className="mb-6">
+        <h3 className="font-bold text-lg mb-3">SISTEMAS A PROTEGER</h3>
+        {formData.sistemas.map((sistema, idx) => (
+          <div key={idx} className="mb-4 border border-gray-300 rounded-lg p-4 bg-gray-50">
+            <div className="flex justify-between items-center mb-3">
+              <h4 className="font-semibold">Sistema #{idx + 1}</h4>
+              {formData.sistemas.length > 1 && <button onClick={() => removeItem('sistemas', idx)} className="text-red-600 hover:bg-red-50 p-2 rounded print:hidden"><Trash2 className="w-4 h-4" /></button>}
+            </div>
+            <table className="w-full border-collapse border border-gray-300 text-sm bg-white">
+              <tbody>
+                <tr><td className="border border-gray-300 p-2 font-semibold w-1/3">Nombre</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.nombre} onChange={(e) => updateNestedField('sistemas', idx, 'nombre', e.target.value)} /></td></tr>
+                <tr><td className="border border-gray-300 p-2 font-semibold">Tipo</td><td className="border border-gray-300 p-2"><select className="w-full border-none outline-none" value={sistema.tipo} onChange={(e) => updateNestedField('sistemas', idx, 'tipo', e.target.value)}><option value="">Seleccionar...</option><option>Servidor Físico</option><option>VM</option><option>Nube</option></select></td></tr>
+                <tr><td className="border border-gray-300 p-2 font-semibold">SO</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.sistemaOperativo} onChange={(e) => updateNestedField('sistemas', idx, 'sistemaOperativo', e.target.value)} /></td></tr>
+                <tr><td className="border border-gray-300 p-2 font-semibold">Aplicación Crítica</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.aplicacion} onChange={(e) => updateNestedField('sistemas', idx, 'aplicacion', e.target.value)} /></td></tr>
+                <tr><td className="border border-gray-300 p-2 font-semibold">Capacidad</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.capacidad} onChange={(e) => updateNestedField('sistemas', idx, 'capacidad', e.target.value)} /></td></tr>
+                <tr><td className="border border-gray-300 p-2 font-semibold">Hipervisor</td><td className="border border-gray-300 p-2"><input type="text" className="w-full border-none outline-none" value={sistema.hipervisor} onChange={(e) => updateNestedField('sistemas', idx, 'hipervisor', e.target.value)} /></td></tr>
+              </tbody>
+            </table>
+          </div>
+        ))}
+        <button onClick={() => addItem('sistemas')} className="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 print:hidden"><Plus className="w-4 h-4" /> Agregar sistema</button>
+      </div>
 
-  <!-- Script único embebido (HTML + CSS + JS en un solo archivo) -->
-  <script>
-    // Ejemplo básico de manejo de estado local para elementos repetibles
-    // Este script mantiene una lista de anexos seleccionados y guarda en localStorage
-    (function() {
-      const anexosList = document.getElementById('anexos-list');
-      // Si quieres, puedes poblar dinámicamente aquí desde un array
-      // Por ahora, ya están los elementos existentes en el HTML
+      <div className="mb-6 border border-blue-300 bg-blue-50 rounded-lg p-4">
+        <h3 className="font-bold text-lg mb-3">CONFIGURACIÓN</h3>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div><p className="font-semibold mb-1">Modelo Appliance:</p><input type="text" className="w-full border border-gray-300 rounded px-2 py-1" value={formData.modeloAppliance} onChange={(e) => updateFormData('modeloAppliance', e.target.value)} /></div>
+          <div><p className="font-semibold mb-1">Serial:</p><input type="text" className="w-full border border-gray-300 rounded px-2 py-1" value={formData.serialEquipo} onChange={(e) => updateFormData('serialEquipo', e.target.value)} /></div>
+          <div><p className="font-semibold mb-1">Agente:</p><select className="w-full border border-gray-300 rounded px-2 py-1" value={formData.agenteInstalado} onChange={(e) => updateFormData('agenteInstalado', e.target.value)}><option value="">Seleccionar...</option><option>Windows</option><option>Linux</option><option>Agentless</option><option>Mixto</option></select></div>
+          <div><p className="font-semibold mb-1">Política Backup:</p><input type="text" className="w-full border border-gray-300 rounded px-2 py-1" value={formData.politicaBackup} onChange={(e) => updateFormData('politicaBackup', e.target.value)} /></div>
+        </div>
+      </div>
 
-      // Guardar
-      document.getElementById('btnGuardar').addEventListener('click', () => {
-        const items = anexosList.querySelectorAll('.item');
-        const data = Array.from(items).map((it, idx) => ({
-          id: idx,
-          checked: it.querySelector('input[type="checkbox"]').checked,
-          label: it.textContent.trim()
-        }));
-        localStorage.setItem('anexos', JSON.stringify(data));
-        alert('Anexos guardados en localStorage');
-      });
+      <div className="mb-6">
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><HardDrive className="w-5 h-5" />ESCENARIOS DE RECUPERACIÓN</h3>
+        <div className="space-y-3">
+          {formData.escenarios.map((esc, idx) => (
+            <div key={idx} className="border border-gray-300 rounded p-3 bg-gray-50">
+              <div className="flex items-center gap-2 mb-2">
+                <input type="checkbox" className="w-4 h-4" checked={esc.checked} onChange={(e) => { const n = [...formData.escenarios]; n[idx].checked = e.target.checked; updateFormData('escenarios', n); }} />
+                <span className="font-semibold text-sm">{idx + 1}. {esc.nombre}</span>
+              </div>
+              <textarea className="w-full border border-gray-200 rounded px-2 py-1 text-sm bg-white" rows="2" value={esc.descripcion} onChange={(e) => { const n = [...formData.escenarios]; n[idx].descripcion = e.target.value; updateFormData('escenarios', n); }} />
+            </div>
+          ))}
+        </div>
+      </div>
 
-      // Cargar si existe
-      try {
-        const raw = localStorage.getItem('anexos');
-        if (raw) {
-          const data = JSON.parse(raw);
-          data.forEach((d) => {
-            const item = anexosList.children[d.id];
-            if (item) {
-              const cb = item.querySelector('input[type="checkbox"]');
-              if (cb) cb.checked = !!d.checked;
-            }
-          });
-        }
-      } catch (e) {
-        console.warn('No se pudo cargar anexos desde localStorage', e);
-      }
+      <div className="mb-6">
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><Clock className="w-5 h-5" />MÉTRICAS POR SISTEMA</h3>
+        <p className="text-xs text-gray-600 mb-3">Documentar métricas específicas de cada sistema</p>
+        {formData.metricasPorSistema.map((met, idx) => (
+          <div key={idx} className="mb-4 border border-gray-300 rounded p-3 bg-gray-50">
+            <div className="flex justify-between items-center mb-2">
+              <input type="text" className="font-semibold border-b border-gray-400 bg-transparent outline-none" placeholder="Sistema..." value={met.sistema} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'sistema', e.target.value)} />
+              {formData.metricasPorSistema.length > 1 && <button onClick={() => removeItem('metricasPorSistema', idx)} className="text-red-600 p-1 print:hidden"><Trash2 className="w-4 h-4" /></button>}
+            </div>
+            <table className="w-full border-collapse border border-gray-300 text-xs bg-white">
+              <thead className="bg-gray-100"><tr><th className="border border-gray-300 p-1">Métrica</th><th className="border border-gray-300 p-1">Objetivo</th><th className="border border-gray-300 p-1">Resultado</th><th className="border border-gray-300 p-1">Estado</th></tr></thead>
+              <tbody>
+                <tr><td className="border border-gray-300 p-1 font-semibold">RTO</td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.rto_obj} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rto_obj', e.target.value)} /></td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.rto_res} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rto_res', e.target.value)} /></td><td className="border border-gray-300 p-1"><select className="w-full text-xs" value={met.rto_st} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rto_st', e.target.value)}><option value="">-</option><option>✓</option><option>✗</option></select></td></tr>
+                <tr><td className="border border-gray-300 p-1 font-semibold">RPO</td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.rpo_obj} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rpo_obj', e.target.value)} /></td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.rpo_res} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rpo_res', e.target.value)} /></td><td className="border border-gray-300 p-1"><select className="w-full text-xs" value={met.rpo_st} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'rpo_st', e.target.value)}><option value="">-</option><option>✓</option><option>✗</option></select></td></tr>
+                <tr><td className="border border-gray-300 p-1 font-semibold">Integridad</td><td className="border border-gray-300 p-1 text-center text-xs">100%</td><td className="border border-gray-300 p-1"><input type="text" className="w-full text-center text-xs" value={met.int_res} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'int_res', e.target.value)} /></td><td className="border border-gray-300 p-1"><select className="w-full text-xs" value={met.int_st} onChange={(e) => updateNestedField('metricasPorSistema', idx, 'int_st', e.target.value)}><option value="">-</option><option>✓</option><option>✗</option></select></td></tr>
+              </tbody>
+            </table>
+          </div>
+        ))}
+        <button onClick={() => addItem('metricasPorSistema')} className="mt-2 text-sm text-blue-600 flex items-center gap-1 print:hidden"><Plus className="w-4 h-4" /> Agregar sistema</button>
+      </div>
 
-      // Limpiar
-      document.getElementById('btnLimpiar').addEventListener('click', () => {
-        anexosList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-        localStorage.removeItem('anexos');
-      });
-    })();
-  </script>
-</body>
-</html>
+      <div className="mb-6 border border-gray-300 rounded-lg p-4">
+        <h3 className="font-bold text-lg mb-3 bg-blue-100 -m-4 p-3 rounded-t-lg">✓ CHECKLIST DURANTE</h3>
+        <div className="mt-4 space-y-1">
+          <CheckItem section="dur" id="1" text="Backup inicial completado" />
+          <CheckItem section="dur" id="2" text="Puntos de recuperación verificados" />
+          <CheckItem section="dur" id="3" text="Escenarios ejecutados" />
+          <CheckItem section="dur" id="4" text="Datos validados por cliente" />
+          <CheckItem section="dur" id="5" text="Evidencias capturadas" />
+          <CheckItem section="dur" id="6" text="Tiempos documentados" />
+          <CheckItem section="dur" id="7" text="Sistema productivo no afectado" />
+        </div>
+      </div>
+
+      <div className="mb-6 border border-green-300 bg-green-50 rounded-lg p-4">
+        <h3 className="font-bold text-lg mb-3">VALIDACIÓN DEL CLIENTE</h3>
+        <div className="space-y-3">
+          <div><label className="text-sm font-semibold">¿Datos recuperados correctos?</label>
+            <div className="flex gap-4 mt-1">
+              <label className="flex items-center gap-2"><input type="radio" name="val" value="si" checked={formData.validacionCliente === 'si'} onChange={(e) => updateFormData('validacionCliente', e.target.value)} /><span className="text-sm">✓ Sí</span></label>
+              <label className="flex items-center gap-2"><input type="radio" name="val" value="no" checked={formData.validacionCliente === 'no'} onChange={(e) => updateFormData('validacionCliente', e.target.value)} /><span className="text-sm">✗ No</span></label>
+            </div>
+          </div>
+          <div><label className="text-sm font-semibold">Comentarios:</label>
+            <textarea className="w-full border border-gray-300 rounded px-2 py-1 mt-1" rows="3" value={formData.comentariosCliente} onChange={(e) => updateFormData('comentariosCliente', e.target.value)} />
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-6 border border-purple-300 bg-purple-50 rounded-lg p-4">
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><BarChart3 className="w-5 h-5" />ENCUESTA DE SATISFACCIÓN</h3>
+        <p className="text-xs text-gray-600 mb-3">Calificar del 1 al 5 (1=Muy Malo, 5=Excelente)</p>
+        <div className="space-y-3">
+          {[
+            { key: 'satisfaccion', label: 'Satisfacción General' },
+            { key: 'facilidad', label: 'Facilidad de Recuperación' },
+            { key: 'tiempo', label: 'Tiempo de Recuperación' },
+            { key: 'confianza', label: 'Confianza en la Solución' }
+          ].map(item => (
+            <div key={item.key} className="flex items-center justify-between">
+              <span className="text-sm font-semibold">{item.label}:</span>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map(val => (
+                  <label key={val} className="cursor-pointer">
+                    <input type="radio" name={item.key} value={val} checked={formData.encuesta[item.key] === val} onChange={() => updateFormData('encuesta', { ...formData.encuesta, [item.key]: val })} className="mr-1" />
+                    <span className="text-sm">{val}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+          <p className="text-sm font-semibold">Promedio General: <span className="text-2xl text-purple-600">{promedioEncuesta}</span> / 5.0</p>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2"><AlertCircle className="w-5 h-5" />OPORTUNIDADES</h3>
+        <textarea className="w-full border border-gray-300 rounded px-3 py-2" rows="4" placeholder="Oportunidades comerciales identificadas..." value={formData.observaciones} onChange={(e) => updateFormData('observaciones', e.target.value)} />
+      </div>
+
+      <div className="mb-6 border border-gray-300 rounded-lg p-4">
+        <h3 className="font-bold text-lg mb-3 bg-green-100 -m-4 p-3 rounded-t-lg">✓ CHECKLIST POST-PRUEBA</h3>
+        <div className="mt-4 space-y-1">
+          <CheckItem section="post" id="1" text="Sistema productivo restaurado a estado original" />
+          <CheckItem section="post" id="2" text="Anexo técnico completado" />
+          <CheckItem section="post" id="3" text="Métricas documentadas" />
+          <CheckItem section="post" id="4" text="Conformidad del cliente obtenida" />
+          <CheckItem section="post" id="5" text="Reporte ejecutivo preparado" />
+          <CheckItem section="post" id="6" text="Oportunidades reportadas" />
+        </div>
+      </div>
+
+      <div className="mb-6 bg-gray-50 border border-gray-300 rounded p-4">
+        <h3 className="font-bold text-lg mb-2">ANEXOS TÉCNICOS</h3>
+        <p className="text-sm text-gray-600 mb-2">Documentos de soporte:</p>
+        <div className="space-y-1 text-sm">
+          <div className="flex items-center gap-2">
+            <input type="checkbox" className="w-4 h-4" />
+            <span>Anexo A: Capturas instalación</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" className="w-4 h-4" />
+            <span>Anexo B: Evidencias recuperación</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" className="w-4 h-4" />
+            <span>Anexo C: Logs técnicos</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" className="w-4 h-4" />
+            <span>Anexo D: Diagrama infraestructura</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t-2 border-gray-300 pt-4 mt-8">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="font-semibold">Elaborado por:</p>
+            <input type="text" className="w-full border-b border-gray-300 mt-2" />
+            <p className="text-xs text-gray-500 mt-1">Nombre y firma</p>
+          </div>
+          <div>
+            <p className="font-semibold">Fecha:</p>
+            <input type="date" className="w-full border-b border-gray-300 mt-2" />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 p-3 bg-yellow-50 border-l-4 border-yellow-500 text-sm print:hidden">
+        <p className="font-semibold">📌 Notas:</p>
+        <ul className="text-gray-700 mt-1 space-y-1 ml-4 list-disc">
+          <li>Documento de uso interno</li>
+          <li>Los datos se guardan automáticamente en tu navegador</li>
+          <li>Para crear un nuevo cliente: <code className="bg-gray-200 px-1 rounded">?client=nombre-empresa</code></li>
+          <li>Para imprimir/PDF: Usa el botón superior o Ctrl+P</li>
+          <li>El PDF se puede subir a Odoo para archivo</li>
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default DattoPilotTemplate;
