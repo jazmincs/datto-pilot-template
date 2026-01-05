@@ -17,10 +17,11 @@
             --accent: #2dd4bf;
             --light-bg: #f0fdfa;
             --border: #99f6e4;
-            --text: #134e4a;
+            --text: #1f2937;
             --text-light: #5eead4;
             --success: #10b981;
             --danger: #ef4444;
+            --dark: #111827;
         }
 
         body {
@@ -41,7 +42,7 @@
         }
 
         .header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 50%, var(--secondary) 100%);
             padding: 40px;
             border-radius: 10px 10px 0 0;
             border-bottom: 4px solid var(--accent);
@@ -72,7 +73,7 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .header .subtitle {
@@ -123,19 +124,19 @@
 
         .btn-export {
             padding: 14px 28px;
-            background: var(--primary);
-            color: white;
+            background: var(--dark);
+            color: var(--accent);
             border: 2px solid var(--accent);
             border-radius: 8px;
             cursor: pointer;
             font-size: 1em;
             font-weight: 600;
             transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(10, 77, 77, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .btn-export:hover {
-            background: var(--secondary);
+            background: var(--primary);
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(10, 77, 77, 0.4);
         }
@@ -143,8 +144,7 @@
         .content {
             padding: 40px;
         }
-
-        .section {
+.section {
             margin-bottom: 35px;
             background: white;
             border: 1px solid var(--border);
@@ -155,7 +155,7 @@
         }
 
         .section-title {
-            color: var(--primary);
+            color: var(--dark);
             font-size: 1.3em;
             font-weight: 700;
             margin-bottom: 20px;
@@ -176,7 +176,7 @@
 
         label {
             display: block;
-            color: var(--primary);
+            color: var(--dark);
             font-weight: 600;
             font-size: 0.9em;
             margin-bottom: 6px;
@@ -222,9 +222,9 @@
             gap: 20px;
         }
 
-        .grid-4 {
+        .grid-3 {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
         }
 
@@ -232,7 +232,6 @@
             margin-bottom: 15px;
         }
 
-        /* Dynamic Items */
         .dynamic-item {
             background: var(--light-bg);
             border: 2px solid var(--border);
@@ -251,7 +250,7 @@
         }
 
         .dynamic-title {
-            color: var(--primary);
+            color: var(--dark);
             font-weight: 700;
             font-size: 1.05em;
         }
@@ -291,7 +290,6 @@
             background: #fee;
         }
 
-        /* Scope boxes */
         .scope-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -308,7 +306,6 @@
             background: #ecfdf5;
             border-color: var(--success);
         }
-
         .scope-exclude {
             background: #fef2f2;
             border-color: var(--danger);
@@ -330,7 +327,6 @@
             color: var(--danger);
         }
 
-        /* Checklist */
         .checklist {
             background: var(--light-bg);
             padding: 15px;
@@ -370,7 +366,6 @@
             letter-spacing: 0;
         }
 
-        /* Table */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -379,8 +374,8 @@
         }
 
         th {
-            background: var(--primary);
-            color: white;
+            background: var(--dark);
+            color: var(--accent);
             padding: 12px;
             text-align: left;
             font-weight: 600;
@@ -400,7 +395,6 @@
             border: 1px solid var(--border);
         }
 
-        /* Scenarios */
         .scenario-item {
             background: var(--light-bg);
             border: 1px solid var(--border);
@@ -424,10 +418,9 @@
 
         .scenario-name {
             font-weight: 600;
-            color: var(--primary);
+            color: var(--dark);
         }
 
-        /* Validation */
         .radio-group {
             display: flex;
             gap: 30px;
@@ -449,7 +442,6 @@
             accent-color: var(--accent);
         }
 
-        /* Notes */
         .note-box {
             background: #fffbeb;
             border-left: 4px solid #f59e0b;
@@ -480,7 +472,6 @@
             font-family: 'Courier New', monospace;
             font-size: 0.9em;
         }
-
         @media print {
             body {
                 background: white;
@@ -506,7 +497,7 @@
 
         @media (max-width: 768px) {
             .grid-2,
-            .grid-4,
+            .grid-3,
             .scope-grid {
                 grid-template-columns: 1fr;
             }
@@ -540,7 +531,6 @@
         </div>
 
         <div class="content">
-            <!-- PROJECT INFO -->
             <div class="section">
                 <div class="section-title">Información del Proyecto</div>
                 
@@ -572,13 +562,11 @@
                 </div>
             </div>
 
-            <!-- CHECKLIST PRE -->
             <div class="section">
                 <div class="section-title">Checklist Pre-Prueba</div>
                 <div class="checklist" id="checklistPre"></div>
             </div>
 
-            <!-- SCOPE -->
             <div class="section">
                 <div class="section-title">Alcance de la Prueba</div>
                 <div class="scope-grid">
@@ -602,15 +590,12 @@
                     </div>
                 </div>
             </div>
-
-            <!-- SYSTEMS -->
-            <div class="section">
+<div class="section">
                 <div class="section-title">Sistemas a Proteger</div>
                 <div id="sistemasContainer"></div>
                 <button class="btn-add" onclick="addSistema()">+ AGREGAR SISTEMA</button>
             </div>
 
-            <!-- CONFIG -->
             <div class="section">
                 <div class="section-title">Configuración Implementada</div>
                 <div class="grid-2">
@@ -639,19 +624,16 @@
                 </div>
             </div>
 
-            <!-- SCENARIOS -->
             <div class="section">
                 <div class="section-title">Escenarios de Recuperación Evaluados</div>
                 <div id="escenariosContainer"></div>
             </div>
 
-            <!-- CHECKLIST DURING -->
             <div class="section">
                 <div class="section-title">Checklist Durante la Prueba</div>
                 <div class="checklist" id="checklistDuring"></div>
             </div>
 
-            <!-- METRICS -->
             <div class="section">
                 <div class="section-title">Métricas Obtenidas por Sistema</div>
                 <p style="color: #64748b; font-size: 0.9em; margin-bottom: 15px;">
@@ -661,7 +643,6 @@
                 <button class="btn-add" onclick="addMetrica()">+ AGREGAR SISTEMA</button>
             </div>
 
-            <!-- VALIDATION -->
             <div class="section">
                 <div class="section-title">Validación y Conformidad del Cliente</div>
                 <div class="form-group">
@@ -683,10 +664,85 @@
                 </div>
             </div>
 
-            <!-- OPPORTUNITIES -->
             <div class="section">
                 <div class="section-title">Oportunidades Identificadas</div>
-                <textarea id="observaciones" rows="6" placeholder="Ejemplo:
+                <div class="section">
+                <div class="section-title">Sistemas a Proteger</div>
+                <div id="sistemasContainer"></div>
+                <button class="btn-add" onclick="addSistema()">+ AGREGAR SISTEMA</button>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Configuración Implementada</div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Modelo de Appliance Datto</label>
+                        <input type="text" id="modeloAppliance" placeholder="Ej: SIRIS 4, ALTO 3">
+                    </div>
+                    <div class="form-group">
+                        <label>Serial del Equipo</label>
+                        <input type="text" id="serialEquipo" placeholder="Ej: S4-ABC12345">
+                    </div>
+                    <div class="form-group">
+                        <label>Agente Instalado</label>
+                        <select id="agenteInstalado">
+                            <option value="">Seleccionar...</option>
+                            <option>Windows Agent</option>
+                            <option>Linux Agent</option>
+                            <option>Agentless (Hypervisor)</option>
+                            <option>Windows + Linux Agent (Mixto)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Política de Backup</label>
+                        <input type="text" id="politicaBackup" placeholder="Ej: Cada 1 hora / Incremental con retención 30 días">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Escenarios de Recuperación Evaluados</div>
+                <div id="escenariosContainer"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Checklist Durante la Prueba</div>
+                <div class="checklist" id="checklistDuring"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Métricas Obtenidas por Sistema</div>
+                <p style="color: #64748b; font-size: 0.9em; margin-bottom: 15px;">
+                    Documentar RTO, RPO e integridad de datos para cada sistema protegido
+                </p>
+                <div id="metricasContainer"></div>
+                <button class="btn-add" onclick="addMetrica()">+ AGREGAR SISTEMA</button>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Validación y Conformidad del Cliente</div>
+                <div class="form-group">
+                    <label>¿El cliente validó que los datos recuperados son correctos?</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="validacion" value="si" id="validacionSi">
+                            <span style="color: var(--success);">✓ SÍ, VALIDADO</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="validacion" value="no" id="validacionNo">
+                            <span style="color: var(--danger);">✗ NO VALIDADO</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Comentarios del Cliente</label>
+                    <textarea id="comentariosCliente" rows="4" placeholder="Observaciones, feedback o comentarios del cliente sobre la prueba realizada..."></textarea>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Oportunidades Identificadas</div>
+<textarea id="observaciones" rows="6" placeholder="Ejemplo:
 • El cliente no cuenta con respaldo de su base de datos SQL Server (oportunidad de expansión)
 • Se identificaron 3 servidores adicionales críticos sin protección
 • El cliente expresó interés en replicación a Datto Cloud
@@ -695,13 +751,11 @@
 • Servidor de Exchange sin backup actual (alta prioridad)"></textarea>
             </div>
 
-            <!-- CHECKLIST POST -->
             <div class="section">
                 <div class="section-title">Checklist Post-Prueba</div>
                 <div class="checklist" id="checklistPost"></div>
             </div>
 
-            <!-- ANNEXES -->
             <div class="section">
                 <div class="section-title">Anexos Técnicos Adjuntos</div>
                 <p style="color: #64748b; font-size: 0.9em; margin-bottom: 15px;">
@@ -727,7 +781,6 @@
                 </div>
             </div>
 
-            <!-- FOOTER -->
             <div class="section">
                 <div class="grid-2">
                     <div class="form-group">
@@ -741,12 +794,11 @@
                 </div>
             </div>
 
-            <!-- NOTES -->
             <div class="note-box">
                 <div class="note-title">⚠️ NOTAS TÉCNICAS IMPORTANTES</div>
                 <ul class="note-list">
                     <li>Este documento es de uso interno exclusivo del equipo técnico</li>
-                    <li>Los datos se guardan automáticamente en el navegador (localStorage)</li>
+                    <li>Los datos se guardan automáticamente en el navegador cada 2 segundos</li>
                     <li>Para crear una nueva prueba piloto para otro cliente: <code>?client=nombre-cliente</code></li>
                     <li>Para exportar a PDF: Usar botón "EXPORTAR PDF" o presionar Ctrl+P</li>
                     <li>El PDF generado debe ser archivado en Odoo o sistema de gestión documental</li>
@@ -761,8 +813,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('client') || 'default';
         document.getElementById('clientDisplay').textContent = clientId;
-
-        let formData = {
+let formData = {
             cliente: '',
             fechaPrueba: '',
             ingenieroACargo: '',
@@ -827,17 +878,41 @@
         ];
 
         function loadData() {
-            const saved = localStorage.getItem(`datto-pilot-${clientId}`);
+            const saved = localStorage.getItem(datto-pilot-${clientId});
             if (saved) {
                 try {
-                    const parsed = JSON.parse(saved);
-                    formData = { ...formData, ...parsed };
+                    formData = JSON.parse(saved);
                     populateFields();
                 } catch (e) {
-                    console.error('Error loading:', e);
+                    console.error('Error loading data:', e);
                 }
             }
             renderAll();
+        }
+
+        function populateFields() {
+document.getElementById('cliente').value = formData.cliente || '';
+            document.getElementById('fechaPrueba').value = formData.fechaPrueba || '';
+            document.getElementById('ingenieroACargo').value = formData.ingenieroACargo || '';
+            document.getElementById('ventanaPrueba').value = formData.ventanaPrueba || '';
+            document.getElementById('alcanceSi').value = formData.alcanceSi || '';
+            document.getElementById('alcanceNo').value = formData.alcanceNo || '';
+            document.getElementById('modeloAppliance').value = formData.modeloAppliance || '';
+            document.getElementById('serialEquipo').value = formData.serialEquipo || '';
+            document.getElementById('agenteInstalado').value = formData.agenteInstalado || '';
+            document.getElementById('politicaBackup').value = formData.politicaBackup || '';
+            document.getElementById('comentariosCliente').value = formData.comentariosCliente || '';
+            document.getElementById('observaciones').value = formData.observaciones || '';
+            document.getElementById('elaboradoPor').value = formData.elaboradoPor || '';
+            document.getElementById('fechaElaboracion').value = formData.fechaElaboracion || '';
+            
+            if (formData.validacion) {
+                if (formData.validacion === 'si') {
+                    document.getElementById('validacionSi').checked = true;
+                } else {
+                    document.getElementById('validacionNo').checked = true;
+                }
+            }
         }
 
         function saveData() {
@@ -851,3 +926,239 @@
             formData.serialEquipo = document.getElementById('serialEquipo').value;
             formData.agenteInstalado = document.getElementById('agenteInstalado').value;
             formData.politicaBackup = document.getElementById('politicaBackup').value;
+            formData.comentariosCliente = document.getElementById('comentariosCliente').value;
+            formData.observaciones = document.getElementById('observaciones').value;
+            formData.elaboradoPor = document.getElementById('elaboradoPor').value;
+            formData.fechaElaboracion = document.getElementById('fechaElaboracion').value;
+
+            const validacionSi = document.getElementById('validacionSi');
+            const validacionNo = document.getElementById('validacionNo');
+            if (validacionSi.checked) formData.validacion = 'si';
+            if (validacionNo.checked) formData.validacion = 'no';
+
+            localStorage.setItem(datto-pilot-${clientId}, JSON.stringify(formData));
+        }
+
+        function addContacto() {
+            formData.contactos.push({ nombre: '', telefono: '', email: '' });
+            renderContactos();
+            saveData();
+        }
+
+        function removeContacto(i) {
+            formData.contactos.splice(i, 1);
+            renderContactos();
+            saveData();
+        }
+
+        function renderContactos() {
+            const container = document.getElementById('contactosContainer');
+            container.innerHTML = formData.contactos.map((c, i) => `
+                <div class="dynamic-item">
+                    <div class="dynamic-header">
+                        <div class="dynamic-title">Contacto ${i + 1}</div>
+${formData.contactos.length > 1 ? <button class="btn-remove" onclick="removeContacto(${i})">✖ ELIMINAR</button> : ''}
+                    </div>
+                    <div class="grid-3">
+                        <input type="text" placeholder="Nombre completo" value="${c.nombre}" 
+                               onchange="formData.contactos[${i}].nombre = this.value; saveData()">
+                        <input type="tel" placeholder="Teléfono" value="${c.telefono}" 
+                               onchange="formData.contactos[${i}].telefono = this.value; saveData()">
+                        <input type="email" placeholder="Email" value="${c.email}" 
+                               onchange="formData.contactos[${i}].email = this.value; saveData()">
+                    </div>
+                </div>
+            ).join('');
+        }
+
+        function addSistema() {
+            formData.sistemas.push({ nombre: '', tipo: '', so: '', app: '', capacidad: '', hipervisor: '' });
+            renderSistemas();
+            saveData();
+        }
+
+        function removeSistema(i) {
+            formData.sistemas.splice(i, 1);
+            renderSistemas();
+            saveData();
+        }
+
+        function renderSistemas() {
+            const container = document.getElementById('sistemasContainer');
+            container.innerHTML = formData.sistemas.map((s, i) => 
+                <div class="dynamic-item">
+                    <div class="dynamic-header">
+                        <div class="dynamic-title">Sistema ${i + 1}</div>
+                        ${formData.sistemas.length > 1 ? <button class="btn-remove" onclick="removeSistema(${i})">✖ ELIMINAR</button> : ''}
+                    </div>
+                    <div class="grid-2">
+                        <div>
+                            <label style="font-size: 0.8em;">Nombre del Sistema</label>
+                            <input type="text" placeholder="Ej: SRV-DC01" value="${s.nombre}" 
+                                   onchange="formData.sistemas[${i}].nombre = this.value; saveData()">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8em;">Tipo</label>
+                            <select onchange="formData.sistemas[${i}].tipo = this.value; saveData()">
+                                <option value="">Seleccionar...</option>
+                                <option ${s.tipo === 'Físico' ? 'selected' : ''}>Físico</option>
+                                <option ${s.tipo === 'Virtual (VM)' ? 'selected' : ''}>Virtual (VM)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8em;">Sistema Operativo</label>
+                            <input type="text" placeholder="Ej: Windows Server 2022" value="${s.so}" 
+                                   onchange="formData.sistemas[${i}].so = this.value; saveData()">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8em;">Aplicación Principal</label>
+                            <input type="text" placeholder="Ej: Active Directory, SQL" value="${s.app}" 
+                                   onchange="formData.sistemas[${i}].app = this.value; saveData()">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8em;">Capacidad de Datos</label>
+                            <input type="text" placeholder="Ej: 500 GB" value="${s.capacidad}" 
+                                   onchange="formData.sistemas[${i}].capacidad = this.value; saveData()">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8em;">Hipervisor (si aplica)</label>
+<input type="text" placeholder="Ej: VMware ESXi 7.0" value="${s.hipervisor}" 
+                                   onchange="formData.sistemas[${i}].hipervisor = this.value; saveData()">
+                        </div>
+                    </div>
+                </div>
+            ).join('');
+        }
+
+        function renderEscenarios() {
+            const container = document.getElementById('escenariosContainer');
+            container.innerHTML = formData.escenarios.map((e, i) => 
+                <div class="scenario-item">
+                    <div class="scenario-header">
+                        <input type="checkbox" ${e.checked ? 'checked' : ''} 
+                               onchange="formData.escenarios[${i}].checked = this.checked; saveData()">
+                        <div class="scenario-name">${e.nombre}</div>
+                    </div>
+                    <textarea rows="2" placeholder="Descripción breve de cómo se ejecutó este escenario..." 
+                              onchange="formData.escenarios[${i}].desc = this.value; saveData()">${e.desc}</textarea>
+                </div>
+            ).join('');
+        }
+
+        function addMetrica() {
+            formData.metricas.push({ sistema: '', rto_obj: '', rto_res: '', rto_st: '', rpo_obj: '', rpo_res: '', rpo_st: '', int_res: '', int_st: '' });
+            renderMetricas();
+            saveData();
+        }
+
+        function removeMetrica(i) {
+            formData.metricas.splice(i, 1);
+            renderMetricas();
+            saveData();
+        }
+
+        function renderMetricas() {
+            const container = document.getElementById('metricasContainer');
+            container.innerHTML = formData.metricas.map((m, i) => 
+                <div class="dynamic-item">
+                    <div class="dynamic-header">
+                        <div class="dynamic-title">Sistema ${i + 1}</div>
+                        ${formData.metricas.length > 1 ? <button class="btn-remove" onclick="removeMetrica(${i})">✖ ELIMINAR</button> : ''}
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="font-size: 0.8em;">Nombre del Sistema</label>
+                        <input type="text" placeholder="Ej: SRV-WEB01" value="${m.sistema}" 
+                               onchange="formData.metricas[${i}].sistema = this.value; saveData()">
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Métrica</th>
+                                <th>Objetivo</th>
+                                <th>Resultado</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>RTO</strong></td>
+                                <td><input type="text" placeholder="Ej: 4 horas" value="${m.rto_obj}" 
+                                         onchange="formData.metricas[${i}].rto_obj = this.value; saveData()"></td>
+                                <td><input type="text" placeholder="Ej: 2.5 horas" value="${m.rto_res}" 
+                                         onchange="formData.metricas[${i}].rto_res = this.value; saveData()"></td>
+                                <td>
+                                    <select onchange="formData.metricas[${i}].rto_st = this.value; saveData()">
+                                        <option value="">...</option>
+                                        <option ${m.rto_st === 'Cumplido' ? 'selected' : ''}>Cumplido</option>
+                                        <option ${m.rto_st === 'No Cumplido' ? 'selected' : ''}>No Cumplido</option>
+</select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>RPO</strong></td>
+                                <td><input type="text" placeholder="Ej: 1 hora" value="${m.rpo_obj}" 
+                                         onchange="formData.metricas[${i}].rpo_obj = this.value; saveData()"></td>
+                                <td><input type="text" placeholder="Ej: 45 min" value="${m.rpo_res}" 
+                                         onchange="formData.metricas[${i}].rpo_res = this.value; saveData()"></td>
+                                <td>
+                                    <select onchange="formData.metricas[${i}].rpo_st = this.value; saveData()">
+                                        <option value="">...</option>
+                                        <option ${m.rpo_st === 'Cumplido' ? 'selected' : ''}>Cumplido</option>
+                                        <option ${m.rpo_st === 'No Cumplido' ? 'selected' : ''}>No Cumplido</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Integridad</strong></td>
+                                <td colspan="2"><input type="text" placeholder="Ej: Archivos verificados correctamente" value="${m.int_res}" 
+                                         onchange="formData.metricas[${i}].int_res = this.value; saveData()"></td>
+                                <td>
+                                    <select onchange="formData.metricas[${i}].int_st = this.value; saveData()">
+                                        <option value="">...</option>
+                                        <option ${m.int_st === 'OK' ? 'selected' : ''}>OK</option>
+                                        <option ${m.int_st === 'Con observaciones' ? 'selected' : ''}>Con observaciones</option>
+                                        <option ${m.int_st === 'Fallo' ? 'selected' : ''}>Fallo</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            ).join('');
+        }
+
+        function renderChecklist(items, checklistKey, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = items.map((item, i) => {
+                const id = ${checklistKey}_${i};
+                const checked = formData[checklistKey][id] || false;
+                return 
+                    <div class="check-item">
+                        <input type="checkbox" id="${id}" ${checked ? 'checked' : ''}
+                               onchange="formData.${checklistKey}['${id}'] = this.checked; saveData()">
+                        <label for="${id}">${item}</label>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAll() {
+            renderContactos();
+            renderSistemas();
+            renderEscenarios();
+            renderMetricas();
+            renderChecklist(checklistPreItems, 'checklistPre', 'checklistPre');
+            renderChecklist(checklistDuringItems, 'checklistDuring', 'checklistDuring');
+            renderChecklist(checklistPostItems, 'checklistPost', 'checklistPost');
+        }
+
+        // Auto-save
+        document.addEventListener('input', () => {
+            saveData();
+        });
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
