@@ -1,457 +1,299 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DATTO BDR | PROTOCOLO TÉCNICO V2</title>
-    <style>
-        :root {
-            --bg-dark: #05070a;
-            --bg-card: #0d1117;
-            --accent-cyan: #00f2ff;
-            --accent-blue: #0062ff;
-            --text-main: #c9d1d9;
-            --text-dim: #8b949e;
-            --border: #30363d;
-            --danger: #f85149;
-            --success: #3fb950;
-            --warning: #d29922;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datto BDR – Pilot Test Report</title>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<style>
+:root{
+  --bg:#0b1020;
+  --card:#141b33;
+  --border:#25305c;
+  --primary:#1f6fff;
+  --success:#2ecc71;
+  --danger:#e74c3c;
+  --warning:#f1c40f;
+  --text:#e6e9f2;
+  --muted:#9aa4d1;
+}
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Segoe UI', 'Ubuntu Mono', monospace;
-            line-height: 1.4;
-            padding-bottom: 50px;
-        }
+*{box-sizing:border-box;margin:0;padding:0}
 
-        /* Scanline Effect */
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 9999;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-        }
+body{
+  background:linear-gradient(160deg,#0b1020,#0e1533);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  color:var(--text);
+  padding:20px;
+}
 
-        .container {
-            max-width: 1100px;
-            margin: 20px auto;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.05);
-        }
+.container{
+  max-width:1200px;
+  margin:auto;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+}
 
-        /* Header Estilo Terminal */
-        .header {
-            background: #161b22;
-            padding: 25px;
-            border-bottom: 2px solid var(--accent-cyan);
-        }
+.header{
+  padding:25px;
+  border-bottom:2px solid var(--primary);
+}
 
-        .header h1 {
-            color: var(--accent-cyan);
-            font-size: 1.5rem;
-            letter-spacing: 4px;
-            text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
-        }
+.header h1{
+  font-size:22px;
+  color:var(--primary);
+}
 
-        .header .subtitle {
-            color: var(--text-dim);
-            font-size: 0.75rem;
-            margin-top: 5px;
-        }
+.subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:5px;
+}
 
-        /* Secciones */
-        .section {
-            padding: 25px;
-            border-bottom: 1px solid var(--border);
-        }
+.client-id{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 20px;
+  border-bottom:1px solid var(--border);
+  background:#10162e;
+  font-size:13px;
+}
 
-        .section-title {
-            color: var(--accent-cyan);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            letter-spacing: 2px;
-        }
+.action-bar{
+  position:fixed;
+  top:20px;
+  right:20px;
+}
 
-        .section-title::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, var(--border), transparent);
-        }
+.btn{
+  background:var(--primary);
+  border:none;
+  color:white;
+  padding:10px 18px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:600;
+}
 
-        /* Grid System */
-        .grid { display: grid; gap: 15px; margin-bottom: 15px; }
-        .grid-2 { grid-template-columns: 1fr 1fr; }
-        .grid-3 { grid-template-columns: repeat(3, 1fr); }
-        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+.btn:hover{opacity:.9}
 
-        /* Inputs Estilizados */
-        .field-group { margin-bottom: 15px; }
-        label {
-            display: block;
-            color: var(--text-dim);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
+.content{padding:25px}
 
-        input, textarea, select {
-            width: 100%;
-            background: #0d1117;
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 10px;
-            border-radius: 3px;
-            font-size: 0.85rem;
-            transition: 0.3s;
-        }
+.section{
+  margin-bottom:25px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:18px;
+  background:#10162e;
+}
 
-        input:focus, textarea:focus {
-            border-color: var(--accent-cyan);
-            outline: none;
-            box-shadow: 0 0 8px rgba(0, 242, 255, 0.1);
-        }
+.section-title{
+  margin-bottom:15px;
+  font-size:14px;
+  font-weight:700;
+  color:var(--primary);
+  text-transform:uppercase;
+}
 
-        /* Dinámicos */
-        .item-row {
-            background: #161b22;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-            position: relative;
-        }
+label{
+  font-size:12px;
+  color:var(--muted);
+  display:block;
+  margin-bottom:5px;
+}
 
-        .btn {
-            cursor: pointer;
-            padding: 8px 15px;
-            font-size: 0.75rem;
-            border-radius: 3px;
-            text-transform: uppercase;
-            font-weight: bold;
-            transition: 0.3s;
-        }
+input,textarea,select{
+  width:100%;
+  padding:9px;
+  background:#0b1020;
+  border:1px solid var(--border);
+  border-radius:4px;
+  color:var(--text);
+  margin-bottom:10px;
+}
 
-        .btn-add {
-            background: transparent;
-            border: 1px solid var(--accent-cyan);
-            color: var(--accent-cyan);
-        }
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 
-        .btn-add:hover { background: rgba(0, 242, 255, 0.1); }
+.dynamic-item{
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:12px;
+  margin-bottom:10px;
+}
 
-        .btn-del {
-            background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            padding: 4px 8px;
-        }
+.dynamic-item-header{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:10px;
+  font-weight:600;
+}
 
-        /* Métricas Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
+.btn-add{
+  background:none;
+  border:1px dashed var(--primary);
+  color:var(--primary);
+  padding:8px;
+  cursor:pointer;
+  border-radius:5px;
+}
 
-        th {
-            text-align: left;
-            padding: 10px;
-            color: var(--accent-cyan);
-            border-bottom: 1px solid var(--border);
-        }
+.btn-remove{
+  background:none;
+  border:1px solid var(--danger);
+  color:var(--danger);
+  padding:4px 8px;
+  border-radius:4px;
+  cursor:pointer;
+}
 
-        td { padding: 8px; border-bottom: 1px solid #161b22; }
+.checklist-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:6px;
+}
 
-        /* Checklist */
-        .check-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .check-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.8rem;
-            padding: 5px;
-        }
-
-        .check-item input[type="checkbox"] { width: auto; }
-
-        /* Action Bar */
-        .top-bar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(5, 7, 10, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        @media print {
-            .top-bar, .btn-add, .btn-del, body::before { display: none !important; }
-            body { background: white; color: black; }
-            .container { border: none; box-shadow: none; max-width: 100%; }
-            input, textarea { border: none; background: transparent; color: black; }
-            .section { page-break-inside: avoid; }
-        }
-    </style>
+@media print{
+  .action-bar{display:none}
+  body{background:white;color:black}
+  .container{border:none}
+}
+</style>
 </head>
+
 <body>
 
-    <div class="top-bar">
-        <button class="btn btn-add" onclick="exportData()">💾 GUARDAR JSON</button>
-        <button class="btn btn-add" style="border-color: var(--success); color: var(--success);" onclick="window.print()">🖨️ EXPORTAR PDF</button>
-    </div>
+<div class="action-bar">
+  <button class="btn" onclick="window.print()">Exportar PDF</button>
+</div>
 
-    <div class="container">
-        <header class="header">
-            <h1>DATTO SIRIS | PILOT PROTOCOL</h1>
-            <div class="subtitle">SISTEMA DE GESTIÓN DE CONTINUIDAD DE NEGOCIO (BCDR)</div>
-        </header>
+<div class="container">
+<div class="header">
+<h1>Datto BDR – Pilot Test</h1>
+<div class="subtitle">Backup & Disaster Recovery – Validation Report</div>
+</div>
 
-        <section class="section">
-            <div class="section-title">01_IDENTIFICACIÓN_DEL_PROYECTO</div>
-            <div class="grid grid-2">
-                <div class="field-group">
-                    <label>Cliente / Organización</label>
-                    <input type="text" id="main_cliente" placeholder="Nombre de la empresa">
-                </div>
-                <div class="field-group">
-                    <label>Fecha del Pilotaje</label>
-                    <input type="date" id="main_fecha">
-                </div>
-            </div>
-            <div class="field-group">
-                <label>Ingenieros Responsables</label>
-                <div id="list_ingenieros"></div>
-                <button class="btn btn-add" onclick="addItem('list_ingenieros', 'text')">+ Añadir Ingeniero</button>
-            </div>
-        </section>
+<div class="client-id">
+<div>CLIENTE: <strong id="clientDisplay">default</strong></div>
+<div>Auto-guardado activo</div>
+</div>
 
-        <section class="section">
-            <div class="section-title">02_ALCANCE_Y_TOPOLOGÍA</div>
-            <div class="grid grid-2">
-                <div class="field-group">
-                    <label style="color: var(--success)">Sistemas Incluidos</label>
-                    <textarea id="scope_in" rows="4" placeholder="Servidores, VMs, Bases de datos..."></textarea>
-                </div>
-                <div class="field-group">
-                    <label style="color: var(--danger)">Exclusiones</label>
-                    <textarea id="scope_out" rows="4" placeholder="Lo que no se cubre en esta prueba..."></textarea>
-                </div>
-            </div>
-        </section>
+<div class="content">
 
-        <section class="section">
-            <div class="section-title">03_DETALLES_DEL_APPLIANCE</div>
-            <div class="grid grid-3">
-                <div class="field-group">
-                    <label>Modelo Datto</label>
-                    <input type="text" id="dev_modelo" placeholder="Ej. SIRIS 4 X1">
-                </div>
-                <div class="field-group">
-                    <label>Serial Number</label>
-                    <input type="text" id="dev_sn" placeholder="SN-XXXXXX">
-                </div>
-                <div class="field-group">
-                    <label>Capacidad Local</label>
-                    <input type="text" id="dev_cap" placeholder="Ej. 1TB">
-                </div>
-            </div>
-        </section>
+<!-- PROJECT -->
+<div class="section">
+<div class="section-title">Información del Proyecto</div>
+<div class="grid-2">
+<div>
+<label>Cliente</label>
+<input id="cliente">
+</div>
+<div>
+<label>Fecha de Prueba</label>
+<input type="date" id="fechaPrueba">
+</div>
+</div>
 
-        <section class="section">
-            <div class="section-title">04_MÉTRICAS_DE_RECUPERACIÓN (RTO/RPO)</div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Sistema Protegido</th>
-                            <th>Escenario</th>
-                            <th>RTO Objetivo</th>
-                            <th>RTO Real</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table_metrics"></tbody>
-                </table>
-            </div>
-            <button class="btn btn-add" style="margin-top: 10px;" onclick="addMetricRow()">+ Añadir Métrica</button>
-        </section>
+<label>Ingenieros Responsables</label>
+<div id="ingenierosContainer"></div>
+<button class="btn-add" onclick="addIngeniero()">+ Agregar ingeniero</button>
 
-        <section class="section">
-            <div class="section-title">05_CHECKLIST_DE_CONFORMIDAD</div>
-            <div class="check-container" id="checklist_final">
-                </div>
-        </section>
+<label style="margin-top:15px">Contactos del Cliente</label>
+<div id="contactosContainer"></div>
+<button class="btn-add" onclick="addContacto()">+ Agregar contacto</button>
 
-        <section class="section">
-            <div class="section-title">06_EVIDENCIAS_Y_ANEXOS</div>
-            <div class="field-group">
-                <label>Observaciones Técnicas Detectadas</label>
-                <textarea id="obs_tecnicas" rows="4" placeholder="Errores en agentes, problemas de red, latencia..."></textarea>
-            </div>
-            <div class="field-group">
-                <label>Oportunidades de Mejora (Upselling)</label>
-                <textarea id="obs_oportunidad" rows="4" placeholder="Otros servidores que necesitan respaldo..."></textarea>
-            </div>
-        </section>
-    </div>
+<label style="margin-top:15px">Ventana de Prueba</label>
+<input id="ventanaPrueba">
+</div>
 
-    <script>
-        // Configuración de Checklists
-        const checkItems = [
-            "Backup inicial completado (Full Image)",
-            "Captura de pantalla (Screenshot Verification) exitosa",
-            "Prueba de virtualización instantánea local (Instant Rollback)",
-            "Restauración granular de archivos verificada",
-            "Replicación a la nube Datto iniciada",
-            "Detección de Ransomware activa y validada",
-            "Métricas RTO documentadas ante el cliente",
-            "Agentes actualizados a la última versión"
-        ];
+<!-- ALCANCE -->
+<div class="section">
+<div class="section-title">Alcance</div>
+<div class="grid-2">
+<textarea id="alcanceSi" placeholder="Incluye..."></textarea>
+<textarea id="alcanceNo" placeholder="Excluye..."></textarea>
+</div>
+</div>
 
-        // Inicialización
-        window.onload = () => {
-            renderChecklist();
-            // Cargar datos previos de localStorage si existen
-            const savedData = localStorage.getItem('datto_form_data');
-            if(savedData) loadAllData(JSON.parse(savedData));
-        };
+<!-- CONFIG -->
+<div class="section">
+<div class="section-title">Configuración Datto</div>
+<div class="grid-2">
+<input id="modeloAppliance" placeholder="Modelo">
+<input id="serialEquipo" placeholder="Serial">
+<select id="agenteInstalado">
+<option value="">Agente</option>
+<option>Windows</option>
+<option>Linux</option>
+<option>Agentless</option>
+</select>
+<input id="politicaBackup" placeholder="Política">
+</div>
+</div>
 
-        function renderChecklist() {
-            const container = document.getElementById('checklist_final');
-            container.innerHTML = checkItems.map((item, i) => `
-                <div class="check-item">
-                    <input type="checkbox" id="chk_${i}" onchange="autoSave()">
-                    <label for="chk_${i}">${item}</label>
-                </div>
-            `).join('');
-        }
+<!-- OBS -->
+<div class="section">
+<div class="section-title">Observaciones</div>
+<textarea id="observaciones" rows="4"></textarea>
+</div>
 
-        // Funciones Dinámicas
-        function addItem(containerId, type) {
-            const container = document.getElementById(containerId);
-            const div = document.createElement('div');
-            div.className = 'item-row';
-            div.style.display = 'flex';
-            div.style.gap = '10px';
-            div.innerHTML = `
-                <input type="${type}" class="dyn-input" onchange="autoSave()">
-                <button class="btn btn-del" onclick="this.parentElement.remove(); autoSave();">✕</button>
-            `;
-            container.appendChild(div);
-            autoSave();
-        }
+</div>
+</div>
 
-        function addMetricRow() {
-            const tbody = document.getElementById('table_metrics');
-            const row = tbody.insertRow();
-            row.innerHTML = `
-                <td><input type="text" placeholder="Servidor X" onchange="autoSave()"></td>
-                <td><select onchange="autoSave()">
-                    <option>File Restore</option>
-                    <option>Instant VM</option>
-                    <option>BMR</option>
-                </select></td>
-                <td><input type="text" placeholder="10 min" onchange="autoSave()"></td>
-                <td><input type="text" placeholder="2 min" onchange="autoSave()"></td>
-                <td><select onchange="autoSave()">
-                    <option value="✅">PASS</option>
-                    <option value="❌">FAIL</option>
-                </select></td>
-                <td><button class="btn btn-del" onclick="this.parentElement.parentElement.remove(); autoSave();">✕</button></td>
-            `;
-            autoSave();
-        }
+<script>
+const urlParams=new URLSearchParams(location.search);
+const clientId=urlParams.get("client")||"default";
+document.getElementById("clientDisplay").textContent=clientId;
+const KEY="datto-"+clientId;
 
-        // Lógica de Persistencia
-        function autoSave() {
-            const data = {
-                main: {
-                    cliente: document.getElementById('main_cliente').value,
-                    fecha: document.getElementById('main_fecha').value
-                },
-                ingenieros: Array.from(document.querySelectorAll('#list_ingenieros input')).map(i => i.value),
-                scope: {
-                    in: document.getElementById('scope_in').value,
-                    out: document.getElementById('scope_out').value
-                },
-                device: {
-                    modelo: document.getElementById('dev_modelo').value,
-                    sn: document.getElementById('dev_sn').value,
-                    cap: document.getElementById('dev_cap').value
-                },
-                obs: {
-                    tecnicas: document.getElementById('obs_tecnicas').value,
-                    oportunidad: document.getElementById('obs_oportunidad').value
-                },
-                checks: Array.from(document.querySelectorAll('#checklist_final input')).map(i => i.checked)
-            };
-            localStorage.setItem('datto_form_data', JSON.stringify(data));
-        }
+let data=JSON.parse(localStorage.getItem(KEY))||{
+cliente:"",fechaPrueba:"",ingenieros:[""],contactos:[],ventanaPrueba:"",
+alcanceSi:"",alcanceNo:"",modeloAppliance:"",serialEquipo:"",
+agenteInstalado:"",politicaBackup:"",observaciones:""
+};
 
-        function exportData() {
-            const data = localStorage.getItem('datto_form_data');
-            const blob = new Blob([data], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `pilot-datto-${new Date().getTime()}.json`;
-            a.click();
-        }
+function save(){localStorage.setItem(KEY,JSON.stringify(data));}
 
-        function loadAllData(data) {
-            if(!data) return;
-            document.getElementById('main_cliente').value = data.main?.cliente || '';
-            document.getElementById('main_fecha').value = data.main?.fecha || '';
-            document.getElementById('scope_in').value = data.scope?.in || '';
-            document.getElementById('scope_out').value = data.scope?.out || '';
-            document.getElementById('dev_modelo').value = data.device?.modelo || '';
-            document.getElementById('dev_sn').value = data.device?.sn || '';
-            document.getElementById('dev_cap').value = data.device?.cap || '';
-            document.getElementById('obs_tecnicas').value = data.obs?.tecnicas || '';
-            document.getElementById('obs_oportunidad').value = data.obs?.oportunidad || '';
-            
-            // Recargar ingenieros
-            data.ingenieros?.forEach(val => {
-                const container = document.getElementById('list_ingenieros');
-                const div = document.createElement('div');
-                div.className = 'item-row';
-                div.style.display = 'flex'; div.style.gap = '10px';
-                div.innerHTML = `<input type="text" class="dyn-input" value="${val}" onchange="autoSave()">
-                                 <button class="btn btn-del" onclick="this.parentElement.remove(); autoSave();">✕</button>`;
-                container.appendChild(div);
-            });
+document.querySelectorAll("input,textarea,select").forEach(e=>{
+e.onchange=()=>{data[e.id]=e.value;save();}
+});
 
-            // Recargar checks
-            data.checks?.forEach((val, i) => {
-                const chk = document.getElementById(`chk_${i}`);
-                if(chk) chk.checked = val;
-            });
-        }
-    </script>
+function renderIngenieros(){
+const c=document.getElementById("ingenierosContainer");c.innerHTML="";
+data.ingenieros.forEach((v,i)=>{
+c.innerHTML+=`<div style="display:flex;gap:10px">
+<input value="${v}" onchange="data.ingenieros[${i}]=this.value;save()">
+${data.ingenieros.length>1?`<button class="btn-remove" onclick="data.ingenieros.splice(${i},1);renderIngenieros();save()">X</button>`:""}
+</div>`;
+});
+}
+function addIngeniero(){data.ingenieros.push("");renderIngenieros();save();}
+
+function renderContactos(){
+const c=document.getElementById("contactosContainer");c.innerHTML="";
+data.contactos.forEach((o,i)=>{
+c.innerHTML+=`
+<div class="dynamic-item">
+<div class="dynamic-item-header">Contacto ${i+1}
+<button class="btn-remove" onclick="data.contactos.splice(${i},1);renderContactos();save()">Eliminar</button>
+</div>
+<div class="grid-4">
+<input placeholder="Nombre" value="${o.nombre||""}" onchange="o.nombre=this.value;save()">
+<input placeholder="Cargo" value="${o.cargo||""}" onchange="o.cargo=this.value;save()">
+<input placeholder="Teléfono" value="${o.telefono||""}" onchange="o.telefono=this.value;save()">
+<input placeholder="Email" value="${o.email||""}" onchange="o.email=this.value;save()">
+</div>
+</div>`;
+});
+}
+function addContacto(){data.contactos.push({});renderContactos();save();}
+
+renderIngenieros();
+renderContactos();
+</script>
+
 </body>
 </html>
