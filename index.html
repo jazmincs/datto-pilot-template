@@ -144,7 +144,8 @@
         .content {
             padding: 40px;
         }
-.section {
+
+        .section {
             margin-bottom: 35px;
             background: white;
             border: 1px solid var(--border);
@@ -306,6 +307,7 @@
             background: #ecfdf5;
             border-color: var(--success);
         }
+
         .scope-exclude {
             background: #fef2f2;
             border-color: var(--danger);
@@ -472,6 +474,7 @@
             font-family: 'Courier New', monospace;
             font-size: 0.9em;
         }
+
         @media print {
             body {
                 background: white;
@@ -590,7 +593,8 @@
                     </div>
                 </div>
             </div>
-<div class="section">
+
+            <div class="section">
                 <div class="section-title">Sistemas a Proteger</div>
                 <div id="sistemasContainer"></div>
                 <button class="btn-add" onclick="addSistema()">+ AGREGAR SISTEMA</button>
@@ -666,83 +670,7 @@
 
             <div class="section">
                 <div class="section-title">Oportunidades Identificadas</div>
-                <div class="section">
-                <div class="section-title">Sistemas a Proteger</div>
-                <div id="sistemasContainer"></div>
-                <button class="btn-add" onclick="addSistema()">+ AGREGAR SISTEMA</button>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Configuración Implementada</div>
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Modelo de Appliance Datto</label>
-                        <input type="text" id="modeloAppliance" placeholder="Ej: SIRIS 4, ALTO 3">
-                    </div>
-                    <div class="form-group">
-                        <label>Serial del Equipo</label>
-                        <input type="text" id="serialEquipo" placeholder="Ej: S4-ABC12345">
-                    </div>
-                    <div class="form-group">
-                        <label>Agente Instalado</label>
-                        <select id="agenteInstalado">
-                            <option value="">Seleccionar...</option>
-                            <option>Windows Agent</option>
-                            <option>Linux Agent</option>
-                            <option>Agentless (Hypervisor)</option>
-                            <option>Windows + Linux Agent (Mixto)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Política de Backup</label>
-                        <input type="text" id="politicaBackup" placeholder="Ej: Cada 1 hora / Incremental con retención 30 días">
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Escenarios de Recuperación Evaluados</div>
-                <div id="escenariosContainer"></div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Checklist Durante la Prueba</div>
-                <div class="checklist" id="checklistDuring"></div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Métricas Obtenidas por Sistema</div>
-                <p style="color: #64748b; font-size: 0.9em; margin-bottom: 15px;">
-                    Documentar RTO, RPO e integridad de datos para cada sistema protegido
-                </p>
-                <div id="metricasContainer"></div>
-                <button class="btn-add" onclick="addMetrica()">+ AGREGAR SISTEMA</button>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Validación y Conformidad del Cliente</div>
-                <div class="form-group">
-                    <label>¿El cliente validó que los datos recuperados son correctos?</label>
-                    <div class="radio-group">
-                        <label>
-                            <input type="radio" name="validacion" value="si" id="validacionSi">
-                            <span style="color: var(--success);">✓ SÍ, VALIDADO</span>
-                        </label>
-                        <label>
-                            <input type="radio" name="validacion" value="no" id="validacionNo">
-                            <span style="color: var(--danger);">✗ NO VALIDADO</span>
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Comentarios del Cliente</label>
-                    <textarea id="comentariosCliente" rows="4" placeholder="Observaciones, feedback o comentarios del cliente sobre la prueba realizada..."></textarea>
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Oportunidades Identificadas</div>
-<textarea id="observaciones" rows="6" placeholder="Ejemplo:
+                <textarea id="observaciones" rows="6" placeholder="Ejemplo:
 • El cliente no cuenta con respaldo de su base de datos SQL Server (oportunidad de expansión)
 • Se identificaron 3 servidores adicionales críticos sin protección
 • El cliente expresó interés en replicación a Datto Cloud
@@ -813,7 +741,8 @@
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('client') || 'default';
         document.getElementById('clientDisplay').textContent = clientId;
-let formData = {
+
+        let formData = {
             cliente: '',
             fechaPrueba: '',
             ingenieroACargo: '',
@@ -878,7 +807,7 @@ let formData = {
         ];
 
         function loadData() {
-            const saved = localStorage.getItem(datto-pilot-${clientId});
+            const saved = localStorage.getItem(`datto-pilot-${clientId}`);
             if (saved) {
                 try {
                     formData = JSON.parse(saved);
@@ -891,7 +820,7 @@ let formData = {
         }
 
         function populateFields() {
-document.getElementById('cliente').value = formData.cliente || '';
+            document.getElementById('cliente').value = formData.cliente || '';
             document.getElementById('fechaPrueba').value = formData.fechaPrueba || '';
             document.getElementById('ingenieroACargo').value = formData.ingenieroACargo || '';
             document.getElementById('ventanaPrueba').value = formData.ventanaPrueba || '';
@@ -936,7 +865,7 @@ document.getElementById('cliente').value = formData.cliente || '';
             if (validacionSi.checked) formData.validacion = 'si';
             if (validacionNo.checked) formData.validacion = 'no';
 
-            localStorage.setItem(datto-pilot-${clientId}, JSON.stringify(formData));
+            localStorage.setItem(`datto-pilot-${clientId}`, JSON.stringify(formData));
         }
 
         function addContacto() {
@@ -957,7 +886,7 @@ document.getElementById('cliente').value = formData.cliente || '';
                 <div class="dynamic-item">
                     <div class="dynamic-header">
                         <div class="dynamic-title">Contacto ${i + 1}</div>
-${formData.contactos.length > 1 ? <button class="btn-remove" onclick="removeContacto(${i})">✖ ELIMINAR</button> : ''}
+                        ${formData.contactos.length > 1 ? `<button class="btn-remove" onclick="removeContacto(${i})">✖ ELIMINAR</button>` : ''}
                     </div>
                     <div class="grid-3">
                         <input type="text" placeholder="Nombre completo" value="${c.nombre}" 
@@ -968,7 +897,7 @@ ${formData.contactos.length > 1 ? <button class="btn-remove" onclick="removeCont
                                onchange="formData.contactos[${i}].email = this.value; saveData()">
                     </div>
                 </div>
-            ).join('');
+            `).join('');
         }
 
         function addSistema() {
@@ -985,11 +914,11 @@ ${formData.contactos.length > 1 ? <button class="btn-remove" onclick="removeCont
 
         function renderSistemas() {
             const container = document.getElementById('sistemasContainer');
-            container.innerHTML = formData.sistemas.map((s, i) => 
+            container.innerHTML = formData.sistemas.map((s, i) => `
                 <div class="dynamic-item">
                     <div class="dynamic-header">
                         <div class="dynamic-title">Sistema ${i + 1}</div>
-                        ${formData.sistemas.length > 1 ? <button class="btn-remove" onclick="removeSistema(${i})">✖ ELIMINAR</button> : ''}
+                        ${formData.sistemas.length > 1 ? `<button class="btn-remove" onclick="removeSistema(${i})">✖ ELIMINAR</button>` : ''}
                     </div>
                     <div class="grid-2">
                         <div>
@@ -1022,17 +951,17 @@ ${formData.contactos.length > 1 ? <button class="btn-remove" onclick="removeCont
                         </div>
                         <div>
                             <label style="font-size: 0.8em;">Hipervisor (si aplica)</label>
-<input type="text" placeholder="Ej: VMware ESXi 7.0" value="${s.hipervisor}" 
+                            <input type="text" placeholder="Ej: VMware ESXi 7.0" value="${s.hipervisor}" 
                                    onchange="formData.sistemas[${i}].hipervisor = this.value; saveData()">
                         </div>
                     </div>
                 </div>
-            ).join('');
+            `).join('');
         }
 
         function renderEscenarios() {
             const container = document.getElementById('escenariosContainer');
-            container.innerHTML = formData.escenarios.map((e, i) => 
+            container.innerHTML = formData.escenarios.map((e, i) => `
                 <div class="scenario-item">
                     <div class="scenario-header">
                         <input type="checkbox" ${e.checked ? 'checked' : ''} 
@@ -1042,7 +971,7 @@ ${formData.contactos.length > 1 ? <button class="btn-remove" onclick="removeCont
                     <textarea rows="2" placeholder="Descripción breve de cómo se ejecutó este escenario..." 
                               onchange="formData.escenarios[${i}].desc = this.value; saveData()">${e.desc}</textarea>
                 </div>
-            ).join('');
+            `).join('');
         }
 
         function addMetrica() {
@@ -1059,11 +988,11 @@ ${formData.contactos.length > 1 ? <button class="btn-remove" onclick="removeCont
 
         function renderMetricas() {
             const container = document.getElementById('metricasContainer');
-            container.innerHTML = formData.metricas.map((m, i) => 
+            container.innerHTML = formData.metricas.map((m, i) => `
                 <div class="dynamic-item">
                     <div class="dynamic-header">
                         <div class="dynamic-title">Sistema ${i + 1}</div>
-                        ${formData.metricas.length > 1 ? <button class="btn-remove" onclick="removeMetrica(${i})">✖ ELIMINAR</button> : ''}
+                        ${formData.metricas.length > 1 ? `<button class="btn-remove" onclick="removeMetrica(${i})">✖ ELIMINAR</button>` : ''}
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label style="font-size: 0.8em;">Nombre del Sistema</label>
@@ -1091,7 +1020,7 @@ ${formData.contactos.length > 1 ? <button class="btn-remove" onclick="removeCont
                                         <option value="">...</option>
                                         <option ${m.rto_st === 'Cumplido' ? 'selected' : ''}>Cumplido</option>
                                         <option ${m.rto_st === 'No Cumplido' ? 'selected' : ''}>No Cumplido</option>
-</select>
+                                    </select>
                                 </td>
                             </tr>
                             <tr>
@@ -1124,15 +1053,15 @@ ${formData.contactos.length > 1 ? <button class="btn-remove" onclick="removeCont
                         </tbody>
                     </table>
                 </div>
-            ).join('');
+            `).join('');
         }
 
         function renderChecklist(items, checklistKey, containerId) {
             const container = document.getElementById(containerId);
             container.innerHTML = items.map((item, i) => {
-                const id = ${checklistKey}_${i};
+                const id = `${checklistKey}_${i}`;
                 const checked = formData[checklistKey][id] || false;
-                return 
+                return `
                     <div class="check-item">
                         <input type="checkbox" id="${id}" ${checked ? 'checked' : ''}
                                onchange="formData.${checklistKey}['${id}'] = this.checked; saveData()">
