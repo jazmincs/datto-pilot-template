@@ -2,297 +2,260 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<title>Plantilla Prueba Piloto BDR</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Datto BDR – Pilot Test Report</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --bg:#0b1020;
-  --card:#141b33;
-  --border:#25305c;
-  --primary:#1f6fff;
-  --success:#2ecc71;
-  --danger:#e74c3c;
-  --warning:#f1c40f;
-  --text:#e6e9f2;
-  --muted:#9aa4d1;
-}
-
-*{box-sizing:border-box;margin:0;padding:0}
-
 body{
-  background:linear-gradient(160deg,#0b1020,#0e1533);
-  font-family:Inter,Segoe UI,Arial,sans-serif;
-  color:var(--text);
-  padding:20px;
+    font-family: 'Inter', sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+    color:#1f2937;
 }
-
 .container{
-  max-width:1200px;
-  margin:auto;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:10px;
+    max-width:1200px;
+    margin:auto;
+    background:#fff;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
-
-.header{
-  padding:25px;
-  border-bottom:2px solid var(--primary);
+h1{
+    color:#0f3c6e;
+    border-bottom:3px solid #0f3c6e;
+    padding-bottom:10px;
 }
-
-.header h1{
-  font-size:22px;
-  color:var(--primary);
+h2{
+    margin-top:35px;
+    color:#0f3c6e;
 }
-
-.subtitle{
-  color:var(--muted);
-  font-size:13px;
-  margin-top:5px;
-}
-
-.client-id{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 20px;
-  border-bottom:1px solid var(--border);
-  background:#10162e;
-  font-size:13px;
-}
-
-.action-bar{
-  position:fixed;
-  top:20px;
-  right:20px;
-}
-
-.btn{
-  background:var(--primary);
-  border:none;
-  color:white;
-  padding:10px 18px;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:600;
-}
-
-.btn:hover{opacity:.9}
-
-.content{padding:25px}
-
 .section{
-  margin-bottom:25px;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:18px;
-  background:#10162e;
+    border:1px solid #e5e7eb;
+    padding:20px;
+    border-radius:8px;
+    margin-top:15px;
+    background:#fafafa;
 }
-
-.section-title{
-  margin-bottom:15px;
-  font-size:14px;
-  font-weight:700;
-  color:var(--primary);
-  text-transform:uppercase;
-}
-
 label{
-  font-size:12px;
-  color:var(--muted);
-  display:block;
-  margin-bottom:5px;
+    font-weight:600;
+    display:block;
+    margin-top:10px;
 }
-
-input,textarea,select{
-  width:100%;
-  padding:9px;
-  background:#0b1020;
-  border:1px solid var(--border);
-  border-radius:4px;
-  color:var(--text);
-  margin-bottom:10px;
+input, textarea, select{
+    width:100%;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid #cbd5e1;
 }
-
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-
-.dynamic-item{
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:12px;
-  margin-bottom:10px;
+textarea{min-height:70px}
+button{
+    margin-top:10px;
+    padding:8px 14px;
+    background:#0f3c6e;
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
 }
-
-.dynamic-item-header{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:10px;
-  font-weight:600;
+button.secondary{
+    background:#64748b;
 }
-
-.btn-add{
-  background:none;
-  border:1px dashed var(--primary);
-  color:var(--primary);
-  padding:8px;
-  cursor:pointer;
-  border-radius:5px;
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
 }
-
-.btn-remove{
-  background:none;
-  border:1px solid var(--danger);
-  color:var(--danger);
-  padding:4px 8px;
-  border-radius:4px;
-  cursor:pointer;
+th, td{
+    border:1px solid #cbd5e1;
+    padding:8px;
+    text-align:left;
 }
-
-.checklist-item{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:6px;
+th{
+    background:#e5eef8;
 }
-
+.checkbox-group label{
+    font-weight:400;
+}
+.actions{
+    text-align:right;
+    margin-top:30px;
+}
+hr{
+    margin:40px 0;
+    border:none;
+    border-top:2px dashed #cbd5e1;
+}
 @media print{
-  .action-bar{display:none}
-  body{background:white;color:black}
-  .container{border:none}
+    button{display:none}
+    body{background:#fff}
 }
 </style>
 </head>
 
 <body>
-
-<div class="action-bar">
-  <button class="btn" onclick="window.print()">Exportar PDF</button>
-</div>
-
 <div class="container">
-<div class="header">
-<h1>Datto BDR – Pilot Test</h1>
-<div class="subtitle">Backup & Disaster Recovery – Validation Report</div>
-</div>
 
-<div class="client-id">
-<div>CLIENTE: <strong id="clientDisplay">default</strong></div>
-<div>Auto-guardado activo</div>
-</div>
+<h1>Prueba Piloto – Continuidad y Recuperación</h1>
 
-<div class="content">
-
-<!-- PROJECT -->
+<!-- 1. Información del Proyecto -->
+<h2>1. Información del Proyecto</h2>
 <div class="section">
-<div class="section-title">Información del Proyecto</div>
-<div class="grid-2">
-<div>
-<label>Cliente</label>
-<input id="cliente">
-</div>
-<div>
-<label>Fecha de Prueba</label>
-<input type="date" id="fechaPrueba">
-</div>
-</div>
+<label>Cliente</label><input data-field>
+<label>Fecha de la prueba</label><input type="date" data-field>
+<label>Ventana de mantenimiento</label><input data-field>
 
-<label>Ingenieros Responsables</label>
-<div id="ingenierosContainer"></div>
-<button class="btn-add" onclick="addIngeniero()">+ Agregar ingeniero</button>
+<h3>Ingenieros Responsables</h3>
+<div id="ingenieros"></div>
+<button onclick="addBlock('ingenieros')">+ Agregar ingeniero</button>
 
-<label style="margin-top:15px">Contactos del Cliente</label>
-<div id="contactosContainer"></div>
-<button class="btn-add" onclick="addContacto()">+ Agregar contacto</button>
-
-<label style="margin-top:15px">Ventana de Prueba</label>
-<input id="ventanaPrueba">
+<h3>Contactos del Cliente</h3>
+<div id="contactos"></div>
+<button onclick="addBlock('contactos')">+ Agregar contacto</button>
 </div>
 
-<!-- ALCANCE -->
+<!-- 2. Checklist Pre-Prueba -->
+<h2>2. Checklist Pre-Prueba</h2>
+<div class="section checkbox-group">
+<label><input type="checkbox" data-field> Accesos validados</label>
+<label><input type="checkbox" data-field> Ventana aprobada</label>
+<label><input type="checkbox" data-field> Credenciales recibidas</label>
+<label><input type="checkbox" data-field> Equipo operativo</label>
+<label><input type="checkbox" data-field> Alcance aprobado</label>
+<label><input type="checkbox" data-field> Sistemas identificados</label>
+<label><input type="checkbox" data-field> Cliente informado</label>
+</div>
+
+<!-- 3. Alcance -->
+<h2>3. Alcance de la Prueba</h2>
 <div class="section">
-<div class="section-title">Alcance</div>
-<div class="grid-2">
-<textarea id="alcanceSi" placeholder="Incluye..."></textarea>
-<textarea id="alcanceNo" placeholder="Excluye..."></textarea>
-</div>
+<label>Incluye</label><textarea data-field></textarea>
+<label>No incluye</label><textarea data-field></textarea>
 </div>
 
-<!-- CONFIG -->
+<!-- 4. Información Técnica -->
+<h2>4. Sistemas a Proteger</h2>
 <div class="section">
-<div class="section-title">Configuración Datto</div>
-<div class="grid-2">
-<input id="modeloAppliance" placeholder="Modelo">
-<input id="serialEquipo" placeholder="Serial">
-<select id="agenteInstalado">
-<option value="">Agente</option>
-<option>Windows</option>
-<option>Linux</option>
-<option>Agentless</option>
+<div id="sistemas"></div>
+<button onclick="addSystem()">+ Agregar sistema</button>
+</div>
+
+<!-- 5. Configuración -->
+<h2>5. Configuración Implementada</h2>
+<div class="section">
+<label>Detalles técnicos</label><textarea data-field></textarea>
+</div>
+
+<!-- 6. Escenarios -->
+<h2>6. Escenarios de Recuperación</h2>
+<div class="section checkbox-group">
+<label><input type="checkbox" data-field> Recuperación de archivos / carpetas</label>
+<label><input type="checkbox" data-field> Recuperación por volumen / partición</label>
+<label><input type="checkbox" data-field> Virtualización instantánea</label>
+<label><input type="checkbox" data-field> Exportación VM (.VHDX / .VMDK)</label>
+<label><input type="checkbox" data-field> Bare Metal Restore (BMR)</label>
+</div>
+
+<!-- 7. Métricas -->
+<h2>7. Métricas RTO / RPO</h2>
+<div class="section">
+<table>
+<tr>
+<th>Sistema</th><th>RTO Obj</th><th>RTO Real</th><th>RPO Obj</th><th>RPO Real</th>
+</tr>
+<tr>
+<td><input data-field></td>
+<td><input data-field></td>
+<td><input data-field></td>
+<td><input data-field></td>
+<td><input data-field></td>
+</tr>
+</table>
+</div>
+
+<!-- 8. Checklist Durante -->
+<h2>8. Checklist Durante la Prueba</h2>
+<div class="section checkbox-group">
+<label><input type="checkbox" data-field> Backup ejecutado</label>
+<label><input type="checkbox" data-field> Punto válido</label>
+<label><input type="checkbox" data-field> Escenario ejecutado</label>
+<label><input type="checkbox" data-field> Datos verificados</label>
+<label><input type="checkbox" data-field> Evidencias tomadas</label>
+<label><input type="checkbox" data-field> Producción no afectada</label>
+<label><input type="checkbox" data-field> Cliente informado</label>
+</div>
+
+<!-- 9. Validación -->
+<h2>9. Validación del Cliente</h2>
+<div class="section">
+<label>Resultado general</label>
+<select data-field>
+<option>Aprobado</option>
+<option>Observado</option>
 </select>
-<input id="politicaBackup" placeholder="Política">
-</div>
+<label>Comentarios</label><textarea data-field></textarea>
 </div>
 
-<!-- OBS -->
+<!-- 10. Oportunidades -->
+<h2>10. Oportunidades Identificadas</h2>
 <div class="section">
-<div class="section-title">Observaciones</div>
-<textarea id="observaciones" rows="4"></textarea>
+<textarea data-field></textarea>
 </div>
 
+<!-- 11. Post -->
+<h2>11. Checklist Post-Prueba</h2>
+<div class="section checkbox-group">
+<label><input type="checkbox" data-field> Sistemas restaurados</label>
+<label><input type="checkbox" data-field> Evidencias guardadas</label>
+<label><input type="checkbox" data-field> Cliente informado</label>
+<label><input type="checkbox" data-field> Datos eliminados</label>
+<label><input type="checkbox" data-field> Documento generado</label>
+<label><input type="checkbox" data-field> Caso cerrado</label>
 </div>
+
+<!-- 12. Anexos -->
+<h2>12. Anexos</h2>
+<div class="section">
+<textarea data-field></textarea>
+</div>
+
+<div class="actions">
+<button onclick="window.print()">🖨 Imprimir / Exportar PDF</button>
+</div>
+
 </div>
 
 <script>
-const urlParams=new URLSearchParams(location.search);
-const clientId=urlParams.get("client")||"default";
-document.getElementById("clientDisplay").textContent=clientId;
-const KEY="datto-"+clientId;
+const client = new URLSearchParams(window.location.search).get("client") || "default";
 
-let data=JSON.parse(localStorage.getItem(KEY))||{
-cliente:"",fechaPrueba:"",ingenieros:[""],contactos:[],ventanaPrueba:"",
-alcanceSi:"",alcanceNo:"",modeloAppliance:"",serialEquipo:"",
-agenteInstalado:"",politicaBackup:"",observaciones:""
-};
-
-function save(){localStorage.setItem(KEY,JSON.stringify(data));}
-
-document.querySelectorAll("input,textarea,select").forEach(e=>{
-e.onchange=()=>{data[e.id]=e.value;save();}
-});
-
-function renderIngenieros(){
-const c=document.getElementById("ingenierosContainer");c.innerHTML="";
-data.ingenieros.forEach((v,i)=>{
-c.innerHTML+=`<div style="display:flex;gap:10px">
-<input value="${v}" onchange="data.ingenieros[${i}]=this.value;save()">
-${data.ingenieros.length>1?`<button class="btn-remove" onclick="data.ingenieros.splice(${i},1);renderIngenieros();save()">X</button>`:""}
-</div>`;
-});
+function save(){
+    const data=[];
+    document.querySelectorAll('[data-field]').forEach(e=>{
+        data.push({v:e.type==="checkbox"?e.checked:e.value});
+    });
+    localStorage.setItem("pilot_"+client, JSON.stringify(data));
 }
-function addIngeniero(){data.ingenieros.push("");renderIngenieros();save();}
-
-function renderContactos(){
-const c=document.getElementById("contactosContainer");c.innerHTML="";
-data.contactos.forEach((o,i)=>{
-c.innerHTML+=`
-<div class="dynamic-item">
-<div class="dynamic-item-header">Contacto ${i+1}
-<button class="btn-remove" onclick="data.contactos.splice(${i},1);renderContactos();save()">Eliminar</button>
-</div>
-<div class="grid-4">
-<input placeholder="Nombre" value="${o.nombre||""}" onchange="o.nombre=this.value;save()">
-<input placeholder="Cargo" value="${o.cargo||""}" onchange="o.cargo=this.value;save()">
-<input placeholder="Teléfono" value="${o.telefono||""}" onchange="o.telefono=this.value;save()">
-<input placeholder="Email" value="${o.email||""}" onchange="o.email=this.value;save()">
-</div>
-</div>`;
-});
+function load(){
+    const data=JSON.parse(localStorage.getItem("pilot_"+client)||"[]");
+    document.querySelectorAll('[data-field]').forEach((e,i)=>{
+        if(data[i]) e.type==="checkbox"?e.checked=data[i].v:e.value=data[i].v;
+    });
 }
-function addContacto(){data.contactos.push({});renderContactos();save();}
+document.addEventListener("input",save);
+window.onload=load;
 
-renderIngenieros();
-renderContactos();
+function addBlock(id){
+    const d=document.createElement("div");
+    d.innerHTML='<input placeholder="Nombre"><input placeholder="Cargo / Rol"><input placeholder="Correo / Teléfono"><hr>';
+    document.getElementById(id).appendChild(d);
+}
+function addSystem(){
+    const d=document.createElement("div");
+    d.innerHTML='<table><tr><th>Nombre</th><th>Tipo</th><th>SO</th><th>Rol</th><th>Tamaño</th></tr><tr><td><input></td><td><input></td><td><input></td><td><input></td><td><input></td></tr></table><br>';
+    document.getElementById("sistemas").appendChild(d);
+}
 </script>
 
 </body>
