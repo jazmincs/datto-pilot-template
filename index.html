@@ -1,131 +1,323 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Proyecto Tecnológico - Demo</title>
+<!DOCTYPE html>  
+<html lang="es">  
+<head>  
+  <meta charset="utf-8" />  
+  <meta name="viewport" content="width=device-width, initial-scale=1" />  
+  <title>Datto Pilot Template - Demo Tecnológico</title>  
 
-  <!-- Fuente: Inter + Mono para un look tecnológico -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Fuente tecnológica -->  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">  
 
-  <!-- Estilos incrustados para un único archivo -->
-  <style>
-    :root{
-      --bg: #0b1020;
-      --surface: #141a2b;
-      --surface-2: #1e2540;
-      --text: #e6eaf8;
-      --muted: #a6b3d3;
-      --primary: #4aa3ff;
-      --accent: #8a5cff;
-      --radius: 12px;
-    }
+  <!-- CSS embebido para todo en un solo archivo -->  
+  <style>  
+    :root{  
+      --bg: #0b1020;  
+      --surface: #141a2b;  
+      --surface-2: #1e2540;  
+      --text: #e6eaf8;  
+      --muted: #a6b3d3;  
+      --primary: #4aa3ff;  
+      --accent: #8a5cff;  
+      --radius: 12px;  
+    }  
+    * { box-sizing: border-box; }  
+    html, body { margin: 0; padding: 0; font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial; background: var(--bg); color: var(--text); }  
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial; background: var(--bg); color: var(--text); }
+    a { color: var(--primary); text-decoration: none; }  
+    a:hover { text-decoration: underline; }  
 
-    a { color: var(--primary); text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    /* Header */  
+    .site-header {  
+      display: flex; justify-content: space-between; align-items: center;  
+      padding: 18px 28px; border-bottom: 1px solid rgba(255,255,255,.08);  
+      background: linear-gradient(135deg, rgba(20,26,48,.95), rgba(10,14,32,.95));  
+      position: sticky; top: 0; z-index: 100;  
+    }  
+    .brand { display: flex; align-items: center; gap: 12px; }  
+    .brand .logo {  
+      width: 38px; height: 38px; border-radius: 9px;  
+      display: inline-flex; align-items: center; justify-content: center;  
+      background: linear-gradient(135deg, var(--primary), var(--accent));  
+      color: white; font-weight: 700;  
+    }  
+    .brand h1 { font-size: 1.15rem; margin: 0; font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo; font-weight: 600; }  
 
-    /* Header */
-    .site-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 18px 28px; border-bottom: 1px solid rgba(255,255,255,.08);
-      background: linear-gradient(135deg, rgba(20,26,48,.95), rgba(10,14,32,.95));
-      position: sticky; top: 0; z-index: 100;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand .logo {
-      width: 38px; height: 38px; border-radius: 9px;
-      display: inline-flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white; font-weight: 700;
-    }
-    .brand h1 { font-size: 1.2rem; margin: 0; font-family: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo; font-weight: 600; }
+    .nav ul { list-style: none; display: flex; gap: 12px; margin: 0; padding: 0; }  
+    .nav a { color: var(--text); opacity: .9; padding: 8px 12px; border-radius: 8px; }  
+    .nav a:hover { background: rgba(255,255,255,.08); }  
 
-    .nav ul { list-style: none; display: flex; gap: 16px; margin: 0; padding: 0; }
-    .nav a { color: var(--text); opacity: .9; padding: 8px 12px; border-radius: 8px; }
-    .nav a:hover { background: rgba(255,255,255,.08); }
+    /* Contenido */  
+    main { padding: 20px 28px; display: grid; gap: 20px; grid-template-columns: 1fr; }  
 
-    /* Contenido */
-    main { padding: 28px; display: grid; gap: 20px; grid-template-columns: 1fr; }
+    .card {  
+      background: linear-gradient(145deg, rgba(20,26,48,.75), rgba(20,26,48,.5));  
+      border: 1px solid rgba(255,255,255,.08);  
+      border-radius: var(--radius);  
+      padding: 20px;  
+      box-shadow: 0 20px 40px rgba(0,0,0,.25);  
+    }  
+    .card h2 { font-family: "Inter", sans-serif; font-weight: 700; margin-top: 0; color: #eaf2ff; }  
 
-    .card {
-      background: linear-gradient(145deg, rgba(20,26,48,.75), rgba(20,26,48,.5));
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,.25);
-    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }  
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }  
+    label { font-size: 12px; color: #d6e0ff; }  
+    input[type="text"], input[type="date"], input[type="tel"], input[type="email"], textarea, select {  
+      width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #334155; background: #0f162a; color: #eaf2ff;  
+    }  
+    textarea { resize: vertical; min-height: 60px; }  
 
-    .card h2 { font-family: "Inter", sans-serif; font-weight: 700; margin-top: 0; color: #eaf2ff; }
+    .section {  
+      margin-top: 12px;  
+      padding: 12px;  
+      border: 1px solid rgba(255,255,255,.08);  
+      border-radius: 8px;  
+      background: rgba(255,255,255,.02);  
+    }  
 
-    .changelog { padding-left: 1.2em; color: var(--muted); }
+    .list { display: grid; gap: 8px; }  
+    .item { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 6px; background: rgba(255,255,255,.04); }  
 
-    /* Footer */
-    .site-footer {
-      text-align: center; padding: 20px; color: var(--muted);
-      border-top: 1px solid rgba(255,255,255,.08); margin-top: 40px;
-      background: #0e1430;
-    }
+    .btn {  
+      display: inline-flex; align-items: center; gap: 6px;  
+      padding: 8px 12px; border-radius: 6px; border: 1px solid #4b6cb3;  
+      background: #2a4ea6; color: white; cursor: pointer;  
+    }  
+    .btn.secondary { background: transparent; border-color: #4b6cb3; color: #cbd5e1; }  
+    .btn.ghost { background: transparent; border: none; color: #93c5fd; cursor: pointer; }  
+    .btn.small { padding: 6px 10px; font-size: 12px; }  
 
-    /* Responsividad básica */
-    @media (min-width: 900px) {
-      main { grid-template-columns: 1fr 1fr; }
-      .card { min-height: 200px; }
-    }
-  </style>
-</head>
-<body>
-  <!-- Encabezado de navegación -->
-  <header class="site-header" aria-label="Encabezado de sitio">
-    <div class="brand">
-      <span class="logo" aria-label="Logo">TL</span>
-      <h1>Proyecto Tecnológico</h1>
-    </div>
-    <nav class="nav" aria-label="Navegación principal">
-      <ul>
-        <li><a href="#seccion1">Sección 1</a></li>
-        <li><a href="#seccion2">Sección 2</a></li>
-        <li><a href="#contacto">Contacto</a></li>
-      </ul>
-    </nav>
-  </header>
+    .section-title { font-size: 1.05rem; font-weight: 700; color: #e6f0ff; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }  
 
-  <main>
-    <!-- Sección 1: contiene el contenido original/actual -->
-    <section id="seccion1" class="card" aria-labelledby="titulo-seccion1">
-      <h2 id="titulo-seccion1">Encabezado de Sección</h2>
-      <p>Este bloque conserva todos los campos existentes y los presenta en un formato limpio y tecnológico.</p>
-      <!-- Inserta aquí el contenido original de tu proyecto.
-           Mantén todos los campos y estructuras existentes. -->
-      <!-- Ejemplo de estructura que podrías haber tenido previamente:
-           <div class="campo" data-id="campoA">Valor A</div>
-           <div class="campo" data-id="campoB">Valor B</div>
-      -->
+    .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #1e3a8a; color: white; font-size: 12px; }  
+
+    /* Footer */  
+    .site-footer { text-align: center; padding: 20px; color: var(--muted); border-top: 1px solid rgba(255,255,255,.08); margin-top: 20px; background: #0e1430; }  
+
+    /* Responsividad */  
+    @media (min-width: 900px) {  
+      main { grid-template-columns: 1fr 1fr; }  
+    }  
+  </style>  
+</head>  
+<body>  
+  <!-- Encabezado -->  
+  <header class="site-header" aria-label="Encabezado de sitio">  
+    <div class="brand">  
+      <span class="logo" aria-label="Logo">DT</span>  
+      <h1>Datto Pilot Template - Demo</h1>  
+    </div>  
+    <nav class="nav" aria-label="Navegación principal">  
+      <ul>  
+        <li><a href="#informacion">Informacion</a></li>  
+        <li><a href="#detalle">Detalle</a></li>  
+        <li><a href="#contacto">Contacto</a></li>  
+      </ul>  
+    </nav>  
+  </header>  
+
+  <main>  
+    <!-- Sección INFORMACIÓN DEL PROYECTO (mantiene campos originales) -->  
+    <section id="informacion" class="card" aria-labelledby="titulo-info">  
+      <h2 id="titulo-info" class="section-title">INFORMACIÓN DEL PROYECTO</h2>  
+
+      <div class="row">  
+        <div class="field">  
+          <label>Cliente</label>  
+          <input id="cliente" type="text" placeholder="Nombre de la empresa" />  
+        </div>  
+        <div class="field">  
+          <label>Fecha de Prueba</label>  
+          <input id="fechaPrueba" type="date" />  
+        </div>  
+      </div>  
+
+      <div class="section" id="ingenieros-wrap">  
+        <div class="section-title">Ingeniero(s) Responsable(s)</div>  
+        <div id="ingenieros-list" class="list"></div>  
+        <button class="btn small" id="add-ingeniero">+ Agregar ingeniero</button>  
+      </div>  
+
+      <div class="section" id="contactos-wrap">  
+        <div class="section-title">Contacto(s) del Cliente</div>  
+        <div id="contactos-list" class="list"></div>  
+        <button class="btn small" id="add-contacto">+ Agregar contacto</button>  
+      </div>  
+
+      <div class="section">  
+        <label>Ventana de Prueba</label>  
+        <input id="ventanaPrueba" type="text" placeholder="Ej: Sábado 15:00-19:00" />  
+      </div>  
+    </section>  
+
+    <!-- Sección DETALLES / VALIDACIONES -->  
+    <section id="detalle" class="card" aria-labelledby="titulo-detalle">  
+      <h2 id="titulo-detalle" class="section-title">DETEALLES Y VALIDACIONES</h2>  
+
+      <div class="section" id="alcance-wrap">  
+        <div class="row">  
+          <div class="field">  
+            <label>Alcance - Incluye</label>  
+            <textarea id="alcanceSi" placeholder="Texto de alcance sí incluye..."></textarea>  
+          </div>  
+          <div class="field">  
+            <label>Alcance - No Incluye</label>  
+            <textarea id="alcanceNo" placeholder="Texto de alcance no incluye..."></textarea>  
+          </div>  
+        </div>  
+      </div>  
+
+      <div class="section" id="sistemas-wrap">  
+        <div class="section-title">SISTEMAS A PROTEGER</div>  
+        <div id="sistemas-list" class="list"></div>  
+        <button class="btn small" id="add-sistema">+ Agregar sistema</button>  
+      </div>  
+
+      <div class="section" id="config-wrap">  
+        <div class="row">  
+          <div class="field">  
+            <label>Modelo Appliance</label>  
+            <input id="modeloAppliance" type="text" placeholder="Modelo appliance" />  
+          </div>  
+          <div class="field">  
+            <label>Serial</label>  
+            <input id="serialEquipo" type="text" placeholder="Número de serie" />  
+          </div>  
+        </div>  
+        <div class="row">  
+          <div class="field">  
+            <label>Agente Instalado</label>  
+            <select id="agenteInstalado">  
+              <option value="">Seleccionar...</option>  
+              <option>Windows</option>  
+              <option>Linux</option>  
+              <option>Agentless</option>  
+              <option>Mixto</option>  
+            </select>  
+          </div>  
+          <div class="field">  
+            <label>Política Backup</label>  
+            <input id="politicaBackup" type="text" placeholder="Política de backup" />  
+          </div>  
+        </div>  
+      </div>  
+
+      <div class="section" id="escenarios-wrap">  
+        <div class="section-title">ESCENARIOS DE RECUPERACIÓN</div>  
+        <div id="escenarios-list" class="list"></div>  
+      </div>  
+
+      <div class="section" id="metrics-wrap">  
+        <div class="section-title">MÉTRICAS POR SISTEMA</div>  
+        <div id="metrics-list" class="list"></div>  
+        <button class="btn small" id="add-metrica">+ Agregar sistema</button>  
+      </div>  
+
+      <div class="section" id="checklist-wrap">  
+        <div class="section-title">CHECKLIST PRE-PRUEBA</div>  
+        <div id="checklist-pre" class="list"></div>  
+      </div>  
+
+      <div class="section" id="cliente-checks-wrap">  
+        <div class="section-title">VALIDACIÓN DEL CLIENTE</div>  
+        <div class="row">  
+          <div class="field">  
+            <label>Datos recuperados correctos?</label>  
+            <div>  
+              <label><input type="radio" name="val" value="si" /> Sí</label>  
+              <label style="margin-left:12px;"><input type="radio" name="val" value="no" /> No</label>  
+            </div>  
+          </div>  
+          <div class="field">  
+            <label>Comentarios</label>  
+            <textarea id="comentariosCliente"></textarea>  
+          </div>  
+        </div>  
+      </div>  
+
+      <div class="section" id="survey-wrap">  
+        <div class="section-title">ENCUESTA DE SATISFACCIÓN</div>  
+        <div id="encuesta" class="list"></div>  
+        <div id="promedio" style="margin-top:8px; font-weight:700;">Promedio General: 0 / 5</div>  
+      </div>  
+
+      <div class="section" id="observaciones-wrap">  
+        <div class="section-title">OPORTUNIDADES</div>  
+        <textarea id="observaciones" placeholder="Oportunidades comerciales identificadas..."></textarea>  
+      </div>  
+
+      <div class="section" id="anexos-wrap">  
+        <div class="section-title">ANEXOS TÉCNICOS</div>  
+        <div class="row">  
+          <label class="field" style="flex:1;">  
+            <span>Documentos de soporte (checklist)</span>  
+            <div class="list" id="anexos-list">  
+              <div class="item"><input type="checkbox" /> Anexo A: Capturas instalación</div>  
+              <div class="item"><input type="checkbox" /> Anexo B: Evidencias recuperación</div> 
+              <div class="item"><input type="checkbox" /> Anexo C: Logs de sistema</div>
+              <div class="item"><input type="checkbox" /> Anexo D: Diagramas de red</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Agregamos un par de botones de acción para guardar/validar en el mismo archivo -->
+      <div class="section" style="display:flex; gap:8px; align-items:center; justify-content:flex-start;">
+        <button class="btn" id="btnGuardar">Guardar Todo</button>
+        <button class="btn secondary" id="btnLimpiar">Limpiar Campos</button>
+        <span class="chip" title="Estado">Sincronizado local</span>
+      </div>
     </section>
 
-    <!-- Sección 2: detalles / validaciones -->
-    <section id="seccion2" class="card" aria-labelledby="titulo-seccion2">
-      <h2 id="titulo-seccion2">Detalles y Validaciones</h2>
-      <ul class="changelog">
-        <li>Campo A: definido correctamente</li>
-        <li>Campo B: verificado para evitar undefined</li>
-        <li>Campo C: compatibilidad con navegadores modernos</li>
-        <!-- Mantén aquí todos los demás campos tal como estaban -->
-      </ul>
-    </section>
   </main>
 
-  <!-- Pie de página -->
   <footer class="site-footer" id="contacto" aria-label="Contacto">
     <p>© 2026 Tu Nombre. Todos los derechos reservados.</p>
   </footer>
 
-  <!-- Comentarios de implementación:
-       - Este archivo es auto-contenido: no dependes de archivos externos para CSS o JS.
-       - Si tu proyecto tenía JavaScript que definía variables, inicializa las variables antes de usarlas para evitar "undefined".
-       - Para subir a GitHub, añade este único index.html y, si puedes, agrega una sección README.md para describir el proyecto.
-  -->
+  <!-- Script único embebido (HTML + CSS + JS en un solo archivo) -->
+  <script>
+    // Ejemplo básico de manejo de estado local para elementos repetibles
+    // Este script mantiene una lista de anexos seleccionados y guarda en localStorage
+    (function() {
+      const anexosList = document.getElementById('anexos-list');
+      // Si quieres, puedes poblar dinámicamente aquí desde un array
+      // Por ahora, ya están los elementos existentes en el HTML
+
+      // Guardar
+      document.getElementById('btnGuardar').addEventListener('click', () => {
+        const items = anexosList.querySelectorAll('.item');
+        const data = Array.from(items).map((it, idx) => ({
+          id: idx,
+          checked: it.querySelector('input[type="checkbox"]').checked,
+          label: it.textContent.trim()
+        }));
+        localStorage.setItem('anexos', JSON.stringify(data));
+        alert('Anexos guardados en localStorage');
+      });
+
+      // Cargar si existe
+      try {
+        const raw = localStorage.getItem('anexos');
+        if (raw) {
+          const data = JSON.parse(raw);
+          data.forEach((d) => {
+            const item = anexosList.children[d.id];
+            if (item) {
+              const cb = item.querySelector('input[type="checkbox"]');
+              if (cb) cb.checked = !!d.checked;
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('No se pudo cargar anexos desde localStorage', e);
+      }
+
+      // Limpiar
+      document.getElementById('btnLimpiar').addEventListener('click', () => {
+        anexosList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        localStorage.removeItem('anexos');
+      });
+    })();
+  </script>
 </body>
 </html>
