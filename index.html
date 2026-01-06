@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datto BDR - Template Prueba Piloto</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -139,6 +140,11 @@
             background: var(--primary);
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(10, 77, 77, 0.4);
+        }
+
+        .btn-export:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .content {
@@ -475,27 +481,44 @@
             font-size: 0.9em;
         }
 
-        @media print {
-            body {
-                background: white;
-            }
-            
-            .action-bar,
-            .note-box,
-            .btn-add,
-            .btn-remove,
-            .client-info .status {
-                display: none !important;
-            }
+        /* Loading overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
 
-            .container {
-                box-shadow: none;
-                border: none;
-            }
+        .loading-overlay.active {
+            display: flex;
+        }
 
-            .section {
-                page-break-inside: avoid;
-            }
+        .loading-spinner {
+            border: 4px solid rgba(45, 212, 191, 0.3);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--accent);
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
@@ -513,8 +536,13 @@
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Generando PDF Profesional...</div>
+    </div>
+
     <div class="action-bar">
-        <button class="btn-export" onclick="window.print()">
+        <button class="btn-export" id="btnExport" onclick="exportToPDF()">
             🖨️ EXPORTAR PDF
         </button>
     </div>
@@ -726,9 +754,8 @@
                 <div class="note-title">⚠️ NOTAS TÉCNICAS IMPORTANTES</div>
                 <ul class="note-list">
                     <li>Este documento es de uso interno exclusivo del equipo técnico</li>
-                    <li>Los datos se guardan automáticamente en el navegador cada 2 segundos</li>
+                    <li>Los datos se guardan automáticamente en el navegador (localStorage)</li>
                     <li>Para crear una nueva prueba piloto para otro cliente: <code>?client=nombre-cliente</code></li>
-                    <li>Para exportar a PDF: Usar botón "EXPORTAR PDF" o presionar Ctrl+P</li>
                     <li>El PDF generado debe ser archivado en Odoo o sistema de gestión documental</li>
                     <li>Mantener estricta confidencialidad de credenciales y datos sensibles del cliente</li>
                     <li>Validar que todos los anexos técnicos estén completos antes del cierre del proyecto</li>
@@ -806,6 +833,281 @@
             'Sesión de capacitación básica realizada con el cliente (si aplica)'
         ];
 
+        // PDF Export Function
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const btnExport = document.getElementById('btnExport');
+            
+            btnExport.disabled = true;
+            loadingOverlay.classList.add('active');
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = 210;
+                const pageHeight = 297;
+                const margin = 20;
+                const contentWidth = pageWidth - (margin * 2);
+                let yPos = margin;
+
+                // Header
+                doc.setFillColor(10, 77, 77);
+                doc.rect(0, 0, pageWidth, 40, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(22);
+                doc.setFont('helvetica', 'bold');
+                doc.text('DATTO BDR - PRUEBA PILOTO', pageWidth / 2, 20, { align: 'center' });
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Template de Validación | Backup & Disaster Recovery', pageWidth / 2, 30, { align: 'center' });
+
+                yPos = 50;
+                doc.setTextColor(0, 0, 0);
+
+                // Cliente info
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`CLIENTE: ${formData.cliente || 'N/A'}`, margin, yPos);
+                doc.text(`FECHA: ${formData.fechaPrueba || 'N/A'}`, pageWidth - margin, yPos, { align: 'right' });
+                yPos += 8;
+                doc.text(`ID: ${clientId}`, margin, yPos);
+                yPos += 10;
+
+                // Función auxiliar para agregar sección
+                function addSection(title) {
+                    if (yPos > 250) {
+                        doc.addPage();
+                        yPos = margin;
+                    }
+                    doc.setFillColor(45, 212, 191);
+                    doc.rect(margin, yPos, contentWidth, 8, 'F');
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFontSize(11);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(title.toUpperCase(), margin + 2, yPos + 5.5);
+                    yPos += 12;
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(9);
+                }
+
+                // Sección 1: Información del Proyecto
+                addSection('Información del Proyecto');
+                doc.text(`Ingeniero a Cargo: ${formData.ingenieroACargo || 'N/A'}`, margin, yPos);
+                yPos += 6;
+                doc.text(`Ventana de Prueba: ${formData.ventanaPrueba || 'N/A'}`, margin, yPos);
+                yPos += 8;
+
+                // Contactos
+                if (formData.contactos && formData.contactos.length > 0) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Contactos del Cliente:', margin, yPos);
+                    yPos += 5;
+                    doc.setFont('helvetica', 'normal');
+                    formData.contactos.forEach((c, idx) => {
+                        if (c.nombre || c.telefono || c.email) {
+                            doc.text(`${idx + 1}. ${c.nombre || ''} - Tel: ${c.telefono || ''} - Email: ${c.email || ''}`, margin + 5, yPos);
+                            yPos += 5;
+                        }
+                    });
+                }
+                yPos += 5;
+
+                // Alcance
+                addSection('Alcance de la Prueba');
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(16, 185, 129);
+                doc.text('✓ SÍ SE INCLUYE:', margin, yPos);
+                yPos += 5;
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(0, 0, 0);
+                const incluye = (formData.alcanceSi || 'No especificado').split('\n');
+                incluye.forEach(line => {
+                    if (yPos > 270) { doc.addPage(); yPos = margin; }
+                    doc.text(line.substring(0, 80), margin + 5, yPos);
+                    yPos += 5;
+                });
+                yPos += 3;
+
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(239, 68, 68);
+                doc.text('✗ NO SE INCLUYE:', margin, yPos);
+                yPos += 5;
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(0, 0, 0);
+                const noIncluye = (formData.alcanceNo || 'No especificado').split('\n');
+                noIncluye.forEach(line => {
+                    if (yPos > 270) { doc.addPage(); yPos = margin; }
+                    doc.text(line.substring(0, 80), margin + 5, yPos);
+                    yPos += 5;
+                });
+                yPos += 5;
+
+                // Sistemas
+                if (formData.sistemas && formData.sistemas.length > 0) {
+                    addSection('Sistemas a Proteger');
+                    formData.sistemas.forEach((s, idx) => {
+                        if (yPos > 250) { doc.addPage(); yPos = margin; }
+                        doc.setFont('helvetica', 'bold');
+                        doc.text(`Sistema #${idx + 1}:`, margin, yPos);
+                        yPos += 5;
+                        doc.setFont('helvetica', 'normal');
+                        doc.text(`Nombre: ${s.nombre || 'N/A'}`, margin + 5, yPos);
+                        yPos += 5;
+                        doc.text(`Tipo: ${s.tipo || 'N/A'} | SO: ${s.so || 'N/A'}`, margin + 5, yPos);
+                        yPos += 5;
+                        doc.text(`Aplicación: ${s.app || 'N/A'}`, margin + 5, yPos);
+                        yPos += 7;
+                    });
+                }
+
+                // Configuración
+                addSection('Configuración Implementada');
+                doc.text(`Modelo Appliance: ${formData.modeloAppliance || 'N/A'}`, margin, yPos);
+                yPos += 5;
+                doc.text(`Serial: ${formData.serialEquipo || 'N/A'}`, margin, yPos);
+                yPos += 5;
+                doc.text(`Agente: ${formData.agenteInstalado || 'N/A'}`, margin, yPos);
+                yPos += 5;
+                doc.text(`Política de Backup: ${formData.politicaBackup || 'N/A'}`, margin, yPos);
+                yPos += 10;
+
+                // Escenarios
+                addSection('Escenarios de Recuperación Evaluados');
+                formData.escenarios.forEach((esc, idx) => {
+                    if (yPos > 265) { doc.addPage(); yPos = margin; }
+                    const check = esc.checked ? '☑' : '☐';
+                    doc.text(`${check} ${esc.nombre}`, margin, yPos);
+                    yPos += 5;
+                    if (esc.desc) {
+                        doc.setFontSize(8);
+                        const lines = doc.splitTextToSize(esc.desc, contentWidth - 10);
+                        lines.forEach(line => {
+                            doc.text(line, margin + 5, yPos);
+                            yPos += 4;
+                        });
+                        doc.setFontSize(9);
+                    }
+                    yPos += 3;
+                });
+
+                // Checklists
+                if (yPos > 200) { doc.addPage(); yPos = margin; }
+                addSection('Checklist Pre-Prueba');
+                checklistPreItems.forEach((item, idx) => {
+                    if (yPos > 270) { doc.addPage(); yPos = margin; }
+                    const checked = formData.checklistPre[`pre-${idx}`] ? '☑' : '☐';
+                    const lines = doc.splitTextToSize(`${checked} ${item}`, contentWidth - 5);
+                    lines.forEach(line => {
+                        doc.text(line, margin, yPos);
+                        yPos += 4.5;
+                    });
+                });
+                yPos += 5;
+
+                if (yPos > 200) { doc.addPage(); yPos = margin; }
+                addSection('Checklist Durante la Prueba');
+                checklistDuringItems.forEach((item, idx) => {
+                    if (yPos > 270) { doc.addPage(); yPos = margin; }
+                    const checked = formData.checklistDuring[`dur-${idx}`] ? '☑' : '☐';
+                    const lines = doc.splitTextToSize(`${checked} ${item}`, contentWidth - 5);
+                    lines.forEach(line => {
+                        doc.text(line, margin, yPos);
+                        yPos += 4.5;
+                    });
+                });
+                yPos += 5;
+
+                if (yPos > 200) { doc.addPage(); yPos = margin; }
+                addSection('Checklist Post-Prueba');
+                checklistPostItems.forEach((item, idx) => {
+                    if (yPos > 270) { doc.addPage(); yPos = margin; }
+                    const checked = formData.checklistPost[`post-${idx}`] ? '☑' : '☐';
+                    const lines = doc.splitTextToSize(`${checked} ${item}`, contentWidth - 5);
+                    lines.forEach(line => {
+                        doc.text(line, margin, yPos);
+                        yPos += 4.5;
+                    });
+                });
+                yPos += 8;
+
+                // Métricas
+                if (formData.metricas && formData.metricas.length > 0) {
+                    if (yPos > 200) { doc.addPage(); yPos = margin; }
+                    addSection('Métricas Obtenidas');
+                    formData.metricas.forEach((m, idx) => {
+                        if (yPos > 250) { doc.addPage(); yPos = margin; }
+                        doc.setFont('helvetica', 'bold');
+                        doc.text(`Sistema: ${m.sistema || `Sistema ${idx + 1}`}`, margin, yPos);
+                        yPos += 5;
+                        doc.setFont('helvetica', 'normal');
+                        doc.text(`RTO - Objetivo: ${m.rto_obj || 'N/A'} | Resultado: ${m.rto_res || 'N/A'} | Estado: ${m.rto_st || 'N/A'}`, margin + 5, yPos);
+                        yPos += 5;
+                        doc.text(`RPO - Objetivo: ${m.rpo_obj || 'N/A'} | Resultado: ${m.rpo_res || 'N/A'} | Estado: ${m.rpo_st || 'N/A'}`, margin + 5, yPos);
+                        yPos += 5;
+                        doc.text(`Integridad - Resultado: ${m.int_res || 'N/A'} | Estado: ${m.int_st || 'N/A'}`, margin + 5, yPos);
+                        yPos += 8;
+                    });
+                }
+
+                // Validación
+                if (yPos > 240) { doc.addPage(); yPos = margin; }
+                addSection('Validación del Cliente');
+                const validacion = formData.validacion === 'si' ? '✓ SÍ, VALIDADO' : formData.validacion === 'no' ? '✗ NO VALIDADO' : 'No especificado';
+                doc.text(`Validación de datos: ${validacion}`, margin, yPos);
+                yPos += 6;
+                doc.text('Comentarios del Cliente:', margin, yPos);
+                yPos += 5;
+                const comentarios = doc.splitTextToSize(formData.comentariosCliente || 'Sin comentarios', contentWidth - 5);
+                comentarios.forEach(line => {
+                    if (yPos > 270) { doc.addPage(); yPos = margin; }
+                    doc.text(line, margin + 5, yPos);
+                    yPos += 5;
+                });
+                yPos += 5;
+
+                // Oportunidades
+                if (yPos > 230) { doc.addPage(); yPos = margin; }
+                addSection('Oportunidades Identificadas');
+                const oportunidades = doc.splitTextToSize(formData.observaciones || 'Sin oportunidades identificadas', contentWidth - 5);
+                oportunidades.forEach(line => {
+                    if (yPos > 270) { doc.addPage(); yPos = margin; }
+                    doc.text(line, margin, yPos);
+                    yPos += 5;
+                });
+                yPos += 10;
+
+                // Footer
+                if (yPos > 260) { doc.addPage(); yPos = margin; }
+                doc.setDrawColor(45, 212, 191);
+                doc.line(margin, yPos, pageWidth - margin, yPos);
+                yPos += 6;
+                doc.setFont('helvetica', 'bold');
+                doc.text('ELABORADO POR:', margin, yPos);
+                doc.setFont('helvetica', 'normal');
+                doc.text(formData.elaboradoPor || 'N/A', margin + 40, yPos);
+                yPos += 6;
+                doc.setFont('helvetica', 'bold');
+                doc.text('FECHA:', margin, yPos);
+                doc.setFont('helvetica', 'normal');
+                doc.text(formData.fechaElaboracion || 'N/A', margin + 40, yPos);
+
+                // Guardar PDF
+                const fileName = `Datto_Pilot_${formData.cliente || clientId}_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(fileName);
+
+                loadingOverlay.classList.remove('active');
+                btnExport.disabled = false;
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                alert('Error al generar el PDF. Por favor, intenta nuevamente.');
+                loadingOverlay.classList.remove('active');
+                btnExport.disabled = false;
+            }
+        }
+
+        // Resto del código (funciones de renderizado, guardado, etc.)
         function loadData() {
             const saved = localStorage.getItem(`datto-pilot-${clientId}`);
             if (saved) {
@@ -813,35 +1115,10 @@
                     formData = JSON.parse(saved);
                     populateFields();
                 } catch (e) {
-                    console.error('Error loading data:', e);
+                    console.error('Error:', e);
                 }
             }
             renderAll();
-        }
-
-        function populateFields() {
-            document.getElementById('cliente').value = formData.cliente || '';
-            document.getElementById('fechaPrueba').value = formData.fechaPrueba || '';
-            document.getElementById('ingenieroACargo').value = formData.ingenieroACargo || '';
-            document.getElementById('ventanaPrueba').value = formData.ventanaPrueba || '';
-            document.getElementById('alcanceSi').value = formData.alcanceSi || '';
-            document.getElementById('alcanceNo').value = formData.alcanceNo || '';
-            document.getElementById('modeloAppliance').value = formData.modeloAppliance || '';
-            document.getElementById('serialEquipo').value = formData.serialEquipo || '';
-            document.getElementById('agenteInstalado').value = formData.agenteInstalado || '';
-            document.getElementById('politicaBackup').value = formData.politicaBackup || '';
-            document.getElementById('comentariosCliente').value = formData.comentariosCliente || '';
-            document.getElementById('observaciones').value = formData.observaciones || '';
-            document.getElementById('elaboradoPor').value = formData.elaboradoPor || '';
-            document.getElementById('fechaElaboracion').value = formData.fechaElaboracion || '';
-            
-            if (formData.validacion) {
-                if (formData.validacion === 'si') {
-                    document.getElementById('validacionSi').checked = true;
-                } else {
-                    document.getElementById('validacionNo').checked = true;
-                }
-            }
         }
 
         function saveData() {
@@ -862,10 +1139,61 @@
 
             const validacionSi = document.getElementById('validacionSi');
             const validacionNo = document.getElementById('validacionNo');
-            if (validacionSi.checked) formData.validacion = 'si';
-            if (validacionNo.checked) formData.validacion = 'no';
+            if (validacionSi && validacionSi.checked) formData.validacion = 'si';
+            if (validacionNo && validacionNo.checked) formData.validacion = 'no';
 
             localStorage.setItem(`datto-pilot-${clientId}`, JSON.stringify(formData));
+        }
+
+        function populateFields() {
+            document.getElementById('cliente').value = formData.cliente || '';
+            document.getElementById('fechaPrueba').value = formData.fechaPrueba || '';
+            document.getElementById('ingenieroACargo').value = formData.ingenieroACargo || '';
+            document.getElementById('ventanaPrueba').value = formData.ventanaPrueba || '';
+            document.getElementById('alcanceSi').value = formData.alcanceSi || '';
+            document.getElementById('alcanceNo').value = formData.alcanceNo || '';
+            document.getElementById('modeloAppliance').value = formData.modeloAppliance || '';
+            document.getElementById('serialEquipo').value = formData.serialEquipo || '';
+            document.getElementById('agenteInstalado').value = formData.agenteInstalado || '';
+            document.getElementById('politicaBackup').value = formData.politicaBackup || '';
+            document.getElementById('comentariosCliente').value = formData.comentariosCliente || '';
+            document.getElementById('observaciones').value = formData.observaciones || '';
+            document.getElementById('elaboradoPor').value = formData.elaboradoPor || '';
+            document.getElementById('fechaElaboracion').value = formData.fechaElaboracion || '';
+
+            if (formData.validacion === 'si') document.getElementById('validacionSi').checked = true;
+            if (formData.validacion === 'no') document.getElementById('validacionNo').checked = true;
+        }
+
+        function renderAll() {
+            renderContactos();
+            renderSistemas();
+            renderEscenarios();
+            renderMetricas();
+            renderChecklist('checklistPre', checklistPreItems, 'pre');
+            renderChecklist('checklistDuring', checklistDuringItems, 'dur');
+            renderChecklist('checklistPost', checklistPostItems, 'post');
+        }
+
+        function renderContactos() {
+            const container = document.getElementById('contactosContainer');
+            container.innerHTML = '';
+            formData.contactos.forEach((c, idx) => {
+                const div = document.createElement('div');
+                div.className = 'dynamic-item';
+                div.innerHTML = `
+                    <div class="dynamic-header">
+                        <span class="dynamic-title">CONTACTO #${idx + 1}</span>
+                        ${formData.contactos.length > 1 ? `<button class="btn-remove" onclick="removeContacto(${idx})">✕ ELIMINAR</button>` : ''}
+                    </div>
+                    <div class="grid-3">
+                        <input type="text" value="${c.nombre || ''}" placeholder="Nombre completo" onchange="updateContacto(${idx}, 'nombre', this.value)">
+                        <input type="tel" value="${c.telefono || ''}" placeholder="Teléfono" onchange="updateContacto(${idx}, 'telefono', this.value)">
+                        <input type="email" value="${c.email || ''}" placeholder="Email" onchange="updateContacto(${idx}, 'email', this.value)">
+                    </div>
+                `;
+                container.appendChild(div);
+            });
         }
 
         function addContacto() {
@@ -874,30 +1202,68 @@
             saveData();
         }
 
-        function removeContacto(i) {
-            formData.contactos.splice(i, 1);
+        function removeContacto(idx) {
+            formData.contactos.splice(idx, 1);
             renderContactos();
             saveData();
         }
 
-        function renderContactos() {
-            const container = document.getElementById('contactosContainer');
-            container.innerHTML = formData.contactos.map((c, i) => `
-                <div class="dynamic-item">
+        function updateContacto(idx, field, value) {
+            formData.contactos[idx][field] = value;
+            saveData();
+        }
+
+        function renderSistemas() {
+            const container = document.getElementById('sistemasContainer');
+            container.innerHTML = '';
+            formData.sistemas.forEach((s, idx) => {
+                const div = document.createElement('div');
+                div.className = 'dynamic-item';
+                div.innerHTML = `
                     <div class="dynamic-header">
-                        <div class="dynamic-title">Contacto ${i + 1}</div>
-                        ${formData.contactos.length > 1 ? `<button class="btn-remove" onclick="removeContacto(${i})">✖ ELIMINAR</button>` : ''}
+                        <span class="dynamic-title">SISTEMA #${idx + 1}</span>
+                        ${formData.sistemas.length > 1 ? `<button class="btn-remove" onclick="removeSistema(${idx})">✕ ELIMINAR</button>` : ''}
                     </div>
-                    <div class="grid-3">
-                        <input type="text" placeholder="Nombre completo" value="${c.nombre}" 
-                               onchange="formData.contactos[${i}].nombre = this.value; saveData()">
-                        <input type="tel" placeholder="Teléfono" value="${c.telefono}" 
-                               onchange="formData.contactos[${i}].telefono = this.value; saveData()">
-                        <input type="email" placeholder="Email" value="${c.email}" 
-                               onchange="formData.contactos[${i}].email = this.value; saveData()">
-                    </div>
-                </div>
-            `).join('');
+                    <table>
+                        <tr>
+                            <th style="width: 30%">Parámetro</th>
+                            <th>Valor</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Nombre</strong></td>
+                            <td><input type="text" value="${s.nombre || ''}" placeholder="Ej: SRV-DC01" onchange="updateSistema(${idx}, 'nombre', this.value)"></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tipo</strong></td>
+                            <td>
+                                <select onchange="updateSistema(${idx}, 'tipo', this.value)">
+                                    <option value="">Seleccionar...</option>
+                                    <option ${s.tipo === 'Servidor Físico' ? 'selected' : ''}>Servidor Físico</option>
+                                    <option ${s.tipo === 'Máquina Virtual' ? 'selected' : ''}>Máquina Virtual</option>
+                                    <option ${s.tipo === 'Servidor en Nube' ? 'selected' : ''}>Servidor en Nube</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sistema Operativo</strong></td>
+                            <td><input type="text" value="${s.so || ''}" placeholder="Ej: Windows Server 2022" onchange="updateSistema(${idx}, 'so', this.value)"></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aplicación Crítica</strong></td>
+                            <td><input type="text" value="${s.app || ''}" placeholder="Ej: Active Directory, SQL Server" onchange="updateSistema(${idx}, 'app', this.value)"></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Capacidad</strong></td>
+                            <td><input type="text" value="${s.capacidad || ''}" placeholder="Ej: 500 GB" onchange="updateSistema(${idx}, 'capacidad', this.value)"></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hipervisor</strong></td>
+                            <td><input type="text" value="${s.hipervisor || ''}" placeholder="Ej: Hyper-V, VMware ESXi, N/A" onchange="updateSistema(${idx}, 'hipervisor', this.value)"></td>
+                        </tr>
+                    </table>
+                `;
+                container.appendChild(div);
+            });
         }
 
         function addSistema() {
@@ -906,98 +1272,49 @@
             saveData();
         }
 
-        function removeSistema(i) {
-            formData.sistemas.splice(i, 1);
+        function removeSistema(idx) {
+            formData.sistemas.splice(idx, 1);
             renderSistemas();
             saveData();
         }
 
-        function renderSistemas() {
-            const container = document.getElementById('sistemasContainer');
-            container.innerHTML = formData.sistemas.map((s, i) => `
-                <div class="dynamic-item">
-                    <div class="dynamic-header">
-                        <div class="dynamic-title">Sistema ${i + 1}</div>
-                        ${formData.sistemas.length > 1 ? `<button class="btn-remove" onclick="removeSistema(${i})">✖ ELIMINAR</button>` : ''}
-                    </div>
-                    <div class="grid-2">
-                        <div>
-                            <label style="font-size: 0.8em;">Nombre del Sistema</label>
-                            <input type="text" placeholder="Ej: SRV-DC01" value="${s.nombre}" 
-                                   onchange="formData.sistemas[${i}].nombre = this.value; saveData()">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.8em;">Tipo</label>
-                            <select onchange="formData.sistemas[${i}].tipo = this.value; saveData()">
-                                <option value="">Seleccionar...</option>
-                                <option ${s.tipo === 'Físico' ? 'selected' : ''}>Físico</option>
-                                <option ${s.tipo === 'Virtual (VM)' ? 'selected' : ''}>Virtual (VM)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size: 0.8em;">Sistema Operativo</label>
-                            <input type="text" placeholder="Ej: Windows Server 2022" value="${s.so}" 
-                                   onchange="formData.sistemas[${i}].so = this.value; saveData()">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.8em;">Aplicación Principal</label>
-                            <input type="text" placeholder="Ej: Active Directory, SQL" value="${s.app}" 
-                                   onchange="formData.sistemas[${i}].app = this.value; saveData()">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.8em;">Capacidad de Datos</label>
-                            <input type="text" placeholder="Ej: 500 GB" value="${s.capacidad}" 
-                                   onchange="formData.sistemas[${i}].capacidad = this.value; saveData()">
-                        </div>
-                        <div>
-                            <label style="font-size: 0.8em;">Hipervisor (si aplica)</label>
-                            <input type="text" placeholder="Ej: VMware ESXi 7.0" value="${s.hipervisor}" 
-                                   onchange="formData.sistemas[${i}].hipervisor = this.value; saveData()">
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+        function updateSistema(idx, field, value) {
+            formData.sistemas[idx][field] = value;
+            saveData();
         }
 
         function renderEscenarios() {
             const container = document.getElementById('escenariosContainer');
-            container.innerHTML = formData.escenarios.map((e, i) => `
-                <div class="scenario-item">
+            container.innerHTML = '';
+            formData.escenarios.forEach((esc, idx) => {
+                const div = document.createElement('div');
+                div.className = 'scenario-item';
+                div.innerHTML = `
                     <div class="scenario-header">
-                        <input type="checkbox" ${e.checked ? 'checked' : ''} 
-                               onchange="formData.escenarios[${i}].checked = this.checked; saveData()">
-                        <div class="scenario-name">${e.nombre}</div>
+                        <input type="checkbox" ${esc.checked ? 'checked' : ''} onchange="updateEscenario(${idx}, 'checked', this.checked)">
+                        <span class="scenario-name">${esc.nombre}</span>
                     </div>
-                    <textarea rows="2" placeholder="Descripción breve de cómo se ejecutó este escenario..." 
-                              onchange="formData.escenarios[${i}].desc = this.value; saveData()">${e.desc}</textarea>
-                </div>
-            `).join('');
+                    <textarea rows="3" placeholder="Descripción del proceso y resultados obtenidos..." onchange="updateEscenario(${idx}, 'desc', this.value)">${esc.desc || ''}</textarea>
+                `;
+                container.appendChild(div);
+            });
         }
 
-        function addMetrica() {
-            formData.metricas.push({ sistema: '', rto_obj: '', rto_res: '', rto_st: '', rpo_obj: '', rpo_res: '', rpo_st: '', int_res: '', int_st: '' });
-            renderMetricas();
-            saveData();
-        }
-
-        function removeMetrica(i) {
-            formData.metricas.splice(i, 1);
-            renderMetricas();
+        function updateEscenario(idx, field, value) {
+            formData.escenarios[idx][field] = value;
             saveData();
         }
 
         function renderMetricas() {
             const container = document.getElementById('metricasContainer');
-            container.innerHTML = formData.metricas.map((m, i) => `
-                <div class="dynamic-item">
+            container.innerHTML = '';
+            formData.metricas.forEach((m, idx) => {
+                const div = document.createElement('div');
+                div.className = 'dynamic-item';
+                div.innerHTML = `
                     <div class="dynamic-header">
-                        <div class="dynamic-title">Sistema ${i + 1}</div>
-                        ${formData.metricas.length > 1 ? `<button class="btn-remove" onclick="removeMetrica(${i})">✖ ELIMINAR</button>` : ''}
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="font-size: 0.8em;">Nombre del Sistema</label>
-                        <input type="text" placeholder="Ej: SRV-WEB01" value="${m.sistema}" 
-                               onchange="formData.metricas[${i}].sistema = this.value; saveData()">
+                        <input type="text" value="${m.sistema || ''}" placeholder="Nombre del sistema" onchange="updateMetrica(${idx}, 'sistema', this.value)" style="border: none; background: transparent; font-weight: bold; font-size: 1.05em;">
+                        ${formData.metricas.length > 1 ? `<button class="btn-remove" onclick="removeMetrica(${idx})">✕ ELIMINAR</button>` : ''}
                     </div>
                     <table>
                         <thead>
@@ -1011,83 +1328,102 @@
                         <tbody>
                             <tr>
                                 <td><strong>RTO</strong></td>
-                                <td><input type="text" placeholder="Ej: 4 horas" value="${m.rto_obj}" 
-                                         onchange="formData.metricas[${i}].rto_obj = this.value; saveData()"></td>
-                                <td><input type="text" placeholder="Ej: 2.5 horas" value="${m.rto_res}" 
-                                         onchange="formData.metricas[${i}].rto_res = this.value; saveData()"></td>
+                                <td><input type="text" value="${m.rto_obj || ''}" placeholder="< 30 min" onchange="updateMetrica(${idx}, 'rto_obj', this.value)"></td>
+                                <td><input type="text" value="${m.rto_res || ''}" placeholder="12 min" onchange="updateMetrica(${idx}, 'rto_res', this.value)"></td>
                                 <td>
-                                    <select onchange="formData.metricas[${i}].rto_st = this.value; saveData()">
-                                        <option value="">...</option>
-                                        <option ${m.rto_st === 'Cumplido' ? 'selected' : ''}>Cumplido</option>
-                                        <option ${m.rto_st === 'No Cumplido' ? 'selected' : ''}>No Cumplido</option>
+                                    <select onchange="updateMetrica(${idx}, 'rto_st', this.value)">
+                                        <option value="">-</option>
+                                        <option ${m.rto_st === '✓' ? 'selected' : ''}>✓</option>
+                                        <option ${m.rto_st === '✗' ? 'selected' : ''}>✗</option>
                                     </select>
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong>RPO</strong></td>
-                                <td><input type="text" placeholder="Ej: 1 hora" value="${m.rpo_obj}" 
-                                         onchange="formData.metricas[${i}].rpo_obj = this.value; saveData()"></td>
-                                <td><input type="text" placeholder="Ej: 45 min" value="${m.rpo_res}" 
-                                         onchange="formData.metricas[${i}].rpo_res = this.value; saveData()"></td>
+                                <td><input type="text" value="${m.rpo_obj || ''}" placeholder="< 1 hora" onchange="updateMetrica(${idx}, 'rpo_obj', this.value)"></td>
+                                <td><input type="text" value="${m.rpo_res || ''}" placeholder="30 min" onchange="updateMetrica(${idx}, 'rpo_res', this.value)"></td>
                                 <td>
-                                    <select onchange="formData.metricas[${i}].rpo_st = this.value; saveData()">
-                                        <option value="">...</option>
-                                        <option ${m.rpo_st === 'Cumplido' ? 'selected' : ''}>Cumplido</option>
-                                        <option ${m.rpo_st === 'No Cumplido' ? 'selected' : ''}>No Cumplido</option>
+                                    <select onchange="updateMetrica(${idx}, 'rpo_st', this.value)">
+                                        <option value="">-</option>
+                                        <option ${m.rpo_st === '✓' ? 'selected' : ''}>✓</option>
+                                        <option ${m.rpo_st === '✗' ? 'selected' : ''}>✗</option>
                                     </select>
                                 </td>
                             </tr>
                             <tr>
                                 <td><strong>Integridad</strong></td>
-                                <td colspan="2"><input type="text" placeholder="Ej: Archivos verificados correctamente" value="${m.int_res}" 
-                                         onchange="formData.metricas[${i}].int_res = this.value; saveData()"></td>
+                                <td>100%</td>
+                                <td><input type="text" value="${m.int_res || ''}" placeholder="100%" onchange="updateMetrica(${idx}, 'int_res', this.value)"></td>
                                 <td>
-                                    <select onchange="formData.metricas[${i}].int_st = this.value; saveData()">
-                                        <option value="">...</option>
-                                        <option ${m.int_st === 'OK' ? 'selected' : ''}>OK</option>
-                                        <option ${m.int_st === 'Con observaciones' ? 'selected' : ''}>Con observaciones</option>
-                                        <option ${m.int_st === 'Fallo' ? 'selected' : ''}>Fallo</option>
+                                    <select onchange="updateMetrica(${idx}, 'int_st', this.value)">
+                                        <option value="">-</option>
+                                        <option ${m.int_st === '✓' ? 'selected' : ''}>✓</option>
+                                        <option ${m.int_st === '✗' ? 'selected' : ''}>✗</option>
                                     </select>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            `).join('');
-        }
-
-        function renderChecklist(items, checklistKey, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = items.map((item, i) => {
-                const id = `${checklistKey}_${i}`;
-                const checked = formData[checklistKey][id] || false;
-                return `
-                    <div class="check-item">
-                        <input type="checkbox" id="${id}" ${checked ? 'checked' : ''}
-                               onchange="formData.${checklistKey}['${id}'] = this.checked; saveData()">
-                        <label for="${id}">${item}</label>
-                    </div>
                 `;
-            }).join('');
+                container.appendChild(div);
+            });
         }
 
-        function renderAll() {
-            renderContactos();
-            renderSistemas();
-            renderEscenarios();
+        function addMetrica() {
+            formData.metricas.push({ sistema: '', rto_obj: '', rto_res: '', rto_st: '', rpo_obj: '', rpo_res: '', rpo_st: '', int_res: '', int_st: '' });
             renderMetricas();
-            renderChecklist(checklistPreItems, 'checklistPre', 'checklistPre');
-            renderChecklist(checklistDuringItems, 'checklistDuring', 'checklistDuring');
-            renderChecklist(checklistPostItems, 'checklistPost', 'checklistPost');
+            saveData();
         }
 
-        // Auto-save
-        document.addEventListener('input', () => {
+        function removeMetrica(idx) {
+            formData.metricas.splice(idx, 1);
+            renderMetricas();
             saveData();
-        });
+        }
+
+        function updateMetrica(idx, field, value) {
+            formData.metricas[idx][field] = value;
+            saveData();
+        }
+
+        function renderChecklist(containerId, items, prefix) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            items.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'check-item';
+                const isChecked = formData[containerId][`${prefix}-${idx}`] || false;
+                div.innerHTML = `
+                    <input type="checkbox" id="${prefix}-${idx}" ${isChecked ? 'checked' : ''} onchange="updateChecklist('${containerId}', '${prefix}-${idx}', this.checked)">
+                    <label for="${prefix}-${idx}">${item}</label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateChecklist(container, key, value) {
+            formData[container][key] = value;
+            saveData();
+        }
+
+        // Event listeners
+        document.getElementById('cliente').addEventListener('change', saveData);
+        document.getElementById('fechaPrueba').addEventListener('change', saveData);
+        document.getElementById('ingenieroACargo').addEventListener('change', saveData);
+        document.getElementById('ventanaPrueba').addEventListener('change', saveData);
+        document.getElementById('alcanceSi').addEventListener('change', saveData);
+        document.getElementById('alcanceNo').addEventListener('change', saveData);
+        document.getElementById('modeloAppliance').addEventListener('change', saveData);
+        document.getElementById('serialEquipo').addEventListener('change', saveData);
+        document.getElementById('agenteInstalado').addEventListener('change', saveData);
+        document.getElementById('politicaBackup').addEventListener('change', saveData);
+        document.getElementById('comentariosCliente').addEventListener('change', saveData);
+        document.getElementById('observaciones').addEventListener('change', saveData);
+        document.getElementById('elaboradoPor').addEventListener('change', saveData);
+        document.getElementById('fechaElaboracion').addEventListener('change', saveData);
+        document.getElementById('validacionSi').addEventListener('change', saveData);
+        document.getElementById('validacionNo').addEventListener('change', saveData);
 
         // Initialize
         loadData();
-    </script>
-</body>
-</html>
+        </script>
